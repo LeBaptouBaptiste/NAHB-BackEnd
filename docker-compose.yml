@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  backend:
+    build: .
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./src:/app
+      - /app/node_modules
+    environment:
+      - PORT=5000
+      - MONGO_URI=mongodb://mongo:27017/nahb
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=rootpassword
+      - MYSQL_DB=nahb
+    depends_on:
+      - mongo
+      - mysql
+    networks:
+      - nahb-network
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - nahb-network
+
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: nahb
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - nahb-network
+
+networks:
+  nahb-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  mysql-data:
