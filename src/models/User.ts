@@ -41,7 +41,7 @@ User.init(
             allowNull: false,
         },
         role: {
-            type: DataTypes.ENUM('admin', 'author', 'reader'),
+            type: DataTypes.ENUM('admin', 'author', 'reader', 'banned'),
             defaultValue: 'reader',
         },
     },

@@ -6,24 +6,32 @@ export interface IGameSession extends Document {
     currentPageId: string;
     history: string[];
     status: 'in_progress' | 'completed' | 'abandoned';
-    diceRolls?: number[];
-
-    isPreview?: boolean;   // <— important pour auteurs
-    autosave?: boolean;    // <— utile pour auto-save clean
+    diceRolls?: number[]; // optional dice roll history for future features
+    isPreview?: boolean; // true if this is an author preview session (doesn't affect stats)
+    endingPageId?: string; // the ending page reached (if completed)
+    createdAt?: Date;
     updatedAt?: Date;
 }
 
-const GameSessionSchema = new Schema<IGameSession>({
-    userId: { type: String, required: true },
-    storyId: { type: String, required: true },
-    currentPageId: { type: String, required: true },
-    history: [{ type: String }],
-    status: { type: String, enum: ['in_progress', 'completed', 'abandoned'], default: 'in_progress' },
-    diceRolls: [{ type: Number }],
+const GameSessionSchema = new Schema<IGameSession>(
+    {
+        userId: { type: String, required: true },
+        storyId: { type: String, required: true },
+        currentPageId: { type: String, required: true },
+        history: [{ type: String }],
+        status: { type: String, enum: ['in_progress', 'completed', 'abandoned'], default: 'in_progress' },
+        diceRolls: [{ type: Number }],
+        isPreview: { type: Boolean, default: false },
+        endingPageId: { type: String },
+    },
+    {
+        timestamps: true,
+    }
+);
 
-    isPreview: { type: Boolean, default: false },
-    autosave: { type: Boolean, default: false },
-}, { timestamps: true });
-
+// Index for efficient queries
+GameSessionSchema.index({ storyId: 1 });
+GameSessionSchema.index({ userId: 1 });
+GameSessionSchema.index({ storyId: 1, status: 1 });
 
 export const GameSession = model<IGameSession>('GameSession', GameSessionSchema);

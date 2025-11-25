@@ -3,7 +3,7 @@ import { IStory } from './Story';
 
 export interface IChoice {
     text: string;
-    targetPageId: string;
+    targetPageId?: string;
     condition?: any; // placeholder for future conditional logic
 }
 
@@ -18,7 +18,7 @@ export interface IPage extends Document {
 
 const ChoiceSchema = new Schema<IChoice>({
     text: { type: String, required: true },
-    targetPageId: { type: String, required: true },
+    targetPageId: { type: String, required: false },
     condition: { type: Schema.Types.Mixed },
 });
 
