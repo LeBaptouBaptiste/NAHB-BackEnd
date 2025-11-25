@@ -13,6 +13,7 @@ export interface IStory extends Document {
         endings: Record<string, number>;
     };
     theme?: string;
+    imageUrl?: string;
 }
 
 const StorySchema = new Schema<IStory>({
@@ -28,6 +29,7 @@ const StorySchema = new Schema<IStory>({
         endings: { type: Map, of: Number, default: {} },
     },
     theme: { type: String },
+    imageUrl: { type: String },
 });
 
 export const Story = model<IStory>('Story', StorySchema);

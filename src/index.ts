@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connectMongo } from './config/mongo';
 import { testMySQLConnection, sequelize } from './config/mysql';
@@ -9,6 +8,7 @@ import authRoutes from './routes/authRoutes';
 import storyRoutes from './routes/storyRoutes';
 import pageRoutes from './routes/pageRoutes';
 import gameRoutes from './routes/gameRoutes';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 
@@ -17,18 +17,15 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
-    credentials: true,
-}));
+app.use(cors());
 app.use(helmet());
-app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/stories', storyRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/game', gameRoutes);
+app.use('/api/users', userRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

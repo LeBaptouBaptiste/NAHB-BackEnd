@@ -1,12 +1,16 @@
 import { Schema, model, Document } from 'mongoose';
 
 export interface IGameSession extends Document {
-    userId: string; // reference to User (MySQL)
-    storyId: string; // reference to Story
+    userId: string;
+    storyId: string;
     currentPageId: string;
-    history: string[]; // array of page IDs visited
+    history: string[];
     status: 'in_progress' | 'completed' | 'abandoned';
-    diceRolls?: number[]; // optional dice roll history for future features
+    diceRolls?: number[];
+
+    isPreview?: boolean;   // <— important pour auteurs
+    autosave?: boolean;    // <— utile pour auto-save clean
+    updatedAt?: Date;
 }
 
 const GameSessionSchema = new Schema<IGameSession>({
@@ -16,6 +20,10 @@ const GameSessionSchema = new Schema<IGameSession>({
     history: [{ type: String }],
     status: { type: String, enum: ['in_progress', 'completed', 'abandoned'], default: 'in_progress' },
     diceRolls: [{ type: Number }],
-});
+
+    isPreview: { type: Boolean, default: false },
+    autosave: { type: Boolean, default: false },
+}, { timestamps: true });
+
 
 export const GameSession = model<IGameSession>('GameSession', GameSessionSchema);
