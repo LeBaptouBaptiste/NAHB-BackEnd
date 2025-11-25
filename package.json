@@ -23,7 +23,6 @@
         "helmet": "^7.0.0",
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.2.0",
-        "morgan": "^1.10.0",
         "multer": "^2.0.2",
         "mysql2": "^3.9.1",
         "sequelize": "^6.37.3",
