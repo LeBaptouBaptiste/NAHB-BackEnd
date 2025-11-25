@@ -9,6 +9,10 @@ import authRoutes from './routes/authRoutes';
 import storyRoutes from './routes/storyRoutes';
 import pageRoutes from './routes/pageRoutes';
 import gameRoutes from './routes/gameRoutes';
+import ratingRoutes from './routes/ratingRoutes';
+import reportRoutes from './routes/reportRoutes';
+import adminRoutes from './routes/adminRoutes';
+import aiStoryRoutes from './routes/aiStoryRoutes';
 
 dotenv.config();
 
@@ -29,6 +33,10 @@ app.use('/api/auth', authRoutes);
 app.use('/api/stories', storyRoutes);
 app.use('/api/pages', pageRoutes);
 app.use('/api/game', gameRoutes);
+app.use('/api/ratings', ratingRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/ai', aiStoryRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
