@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Report } from '../models/Report';
-import { Story } from '../models/Story';
+import { Report } from '../models/mongoose/Report';
+import { Story } from '../models/mongoose/Story';
 
 // Report a story
 export const reportStory = async (req: Request, res: Response) => {

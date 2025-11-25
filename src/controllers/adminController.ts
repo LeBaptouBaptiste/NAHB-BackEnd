@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
-import { Story } from '../models/Story';
-import { Report } from '../models/Report';
-import { Rating } from '../models/Rating';
-import { GameSession } from '../models/GameSession';
-import User from '../models/User';
+import { Story } from '../models/mongoose/Story';
+import { Report } from '../models/mongoose/Report';
+import { Rating } from '../models/mongoose/Rating';
+import { GameSession } from '../models/mongoose/GameSession';
+import User from '../models/sequelize/User';
 
 // Middleware to check if user is admin
 export const requireAdmin = async (req: Request, res: Response, next: any) => {

@@ -1,5 +1,5 @@
-import { Report } from '../../models/Report';
-import { Story } from '../../models/Story';
+import { Report } from '../../models/mongoose/Report';
+import { Story } from '../../models/mongoose/Story';
 
 describe('Report Model', () => {
     let testStory: any;

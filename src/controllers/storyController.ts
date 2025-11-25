@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Story } from '../models/Story';
-import User from '../models/User';
+import { Story } from '../models/mongoose/Story';
+import User from '../models/sequelize/User';
 
 // Helper to ensure the requesting user is the author
 const isAuthor = async (userId: number, authorId: string) => {

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { Page, IPage } from '../models/Page';
-import { Story } from '../models/Story';
-import User from '../models/User';
+import { Page, IPage } from '../models/mongoose/Page';
+import { Story } from '../models/mongoose/Story';
+import User from '../models/sequelize/User';
 
 // Helper to verify author ownership
 const isAuthor = async (userId: number, authorId: string) => {

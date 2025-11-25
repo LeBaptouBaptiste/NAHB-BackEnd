@@ -1,4 +1,4 @@
-import { Story, IStory } from '../../models/Story';
+import { Story, IStory } from '../../models/mongoose/Story';
 
 describe('Story Model', () => {
     it('should create a story with required fields', async () => {

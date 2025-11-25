@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Rating } from '../models/Rating';
-import { Story } from '../models/Story';
+import { Rating } from '../models/mongoose/Rating';
+import { Story } from '../models/mongoose/Story';
 
 // Add or update a rating for a story
 export const rateStory = async (req: Request, res: Response) => {
