@@ -269,8 +269,9 @@ _(Add screenshots of your application here)_
 
 ## 👥 Team
 
-Group project by 2 students.
+Group project by Stephane DEDU and VIDAL Baptiste
 
 ## 📄 License
 
 ISC
+
