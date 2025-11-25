@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { aiStoryController } from '../controllers/aiStoryController';
+import { authenticate } from '../middleware/auth';
 
 const router = Router();
 
@@ -15,7 +16,7 @@ const router = Router();
  *   "language": "fr"
  * }
  */
-router.post('/generate-story', (req, res) => aiStoryController.generateStory(req, res));
+router.post('/generate-story', authenticate, (req, res) => aiStoryController.generateStory(req, res));
 
 /**
  * POST /api/ai/generate-page

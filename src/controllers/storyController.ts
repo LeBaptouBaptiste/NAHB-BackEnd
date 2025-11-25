@@ -11,11 +11,12 @@ const isAuthor = async (userId: number, authorId: string) => {
 export const createStory = async (req: Request, res: Response) => {
     // @ts-ignore - userId injected by auth middleware
     const userId = (req as any).userId;
-    const { title, description, tags, theme } = req.body;
+    const { title, description, tags, theme, imageUrl } = req.body;
     try {
         const story = await Story.create({
             title,
             description,
+            imageUrl,
             tags,
             theme,
             authorId: userId.toString(),
@@ -57,7 +58,7 @@ export const updateStory = async (req: Request, res: Response) => {
     // @ts-ignore
     const userId = (req as any).userId;
     const { id } = req.params;
-    const { title, description, tags, status, theme } = req.body;
+    const { title, description, tags, status, theme, imageUrl } = req.body;
     try {
         const story = await Story.findById(id);
         if (!story) return res.status(404).json({ message: 'Story not found' });
@@ -66,6 +67,7 @@ export const updateStory = async (req: Request, res: Response) => {
         }
         if (title) story.title = title;
         if (description) story.description = description;
+        if (imageUrl) story.imageUrl = imageUrl;
         if (tags) story.tags = tags;
         if (status) story.status = status;
         if (theme) story.theme = theme;

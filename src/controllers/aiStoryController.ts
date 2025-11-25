@@ -16,6 +16,8 @@ export class AIStoryController {
      */
     async generateStory(req: Request, res: Response): Promise<void> {
         try {
+            // @ts-ignore
+            const userId = (req as any).userId;
             const { userPrompt, theme, numPages, language } = req.body as StoryGenerationRequest;
 
             if (!userPrompt || userPrompt.trim().length === 0) {
@@ -30,7 +32,7 @@ export class AIStoryController {
                 theme,
                 numPages,
                 language: language || 'fr',
-            });
+            }, userId ? userId.toString() : 'ai-system');
 
             res.status(201).json({
                 success: true,

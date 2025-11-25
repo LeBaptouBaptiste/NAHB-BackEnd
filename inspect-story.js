@@ -1,7 +1,7 @@
 // Fetch and display the generated story details
 const axios = require('axios');
 
-const STORY_ID = '69257921bbead4e6a65323bb';
+const STORY_ID = '692587cba9b72e74eeb112bc';
 const BASE_URL = 'http://localhost:5000/api';
 
 async function inspectStory() {

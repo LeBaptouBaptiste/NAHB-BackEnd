@@ -13,11 +13,13 @@ export interface IStory extends Document {
         endings: Record<string, number>;
     };
     theme?: string;
+    imageUrl?: string;
 }
 
 const StorySchema = new Schema<IStory>({
     title: { type: String, required: true },
     description: { type: String },
+    imageUrl: { type: String },
     tags: [{ type: String }],
     status: { type: String, enum: ['draft', 'published', 'suspended'], default: 'draft' },
     authorId: { type: String, required: true },

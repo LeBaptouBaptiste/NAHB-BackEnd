@@ -67,6 +67,9 @@ export const makeChoice = async (req: Request, res: Response) => {
             return res.status(400).json({ message: 'Invalid choice index' });
         }
         const nextPageId = page.choices[choiceIndex].targetPageId;
+        if (!nextPageId) {
+            return res.status(400).json({ message: 'Choice target not available' });
+        }
         // Update session history
         session.history.push(session.currentPageId);
         session.currentPageId = nextPageId;

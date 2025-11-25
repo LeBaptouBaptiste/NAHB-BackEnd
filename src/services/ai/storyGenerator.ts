@@ -24,7 +24,7 @@ export class StoryGenerator {
     /**
      * Generate a complete story from a user prompt using iterative page generation
      */
-    async generateFullStory(request: StoryGenerationRequest): Promise<IStory> {
+    async generateFullStory(request: StoryGenerationRequest, authorId: string = 'ai-system'): Promise<IStory> {
         const { userPrompt, theme, numPages = 6, language = 'fr' } = request;
 
         console.log(`🎯 Generating story iteratively: "${userPrompt}"`);
@@ -42,7 +42,7 @@ export class StoryGenerator {
                 description: metadata.description,
                 tags: metadata.tags || ['ai-generated', 'interactive'],
                 status: 'draft',
-                authorId: 'ai-system',
+                authorId: authorId,
                 theme: metadata.theme || theme || 'adventure',
                 stats: {
                     views: 0,
@@ -468,14 +468,31 @@ export class StoryGenerator {
         const choices: GeneratedChoice[] = [];
         const lines = pageContent.split('\n');
 
-        for (const line of lines) {
+        for (let i = 0; i < lines.length; i++) {
+            let line = lines[i].trim();
+
+            // Check if arrow is on the next line (common AI formatting issue)
+            if (i + 1 < lines.length && lines[i + 1].trim().match(/^→\s*Page\s*(\d+|X)/i)) {
+                line += ' ' + lines[i + 1].trim();
+                // Don't skip next line index here, let the loop handle it (or we might miss something? no, we consumed it)
+                // Actually, if we consumed it, we should skip it.
+                i++;
+            }
+
             // Match several choice formats:
             // - **[Texte]** → Page X
             // - **Texte** → Page X
-            const match1 = line.match(/^-?\s*\*\*\[(.+?)\]\*\*\s*→\s*Page\s*(\d+|X)/i);
-            const match2 = line.match(/^-?\s*\*\*(.+?)\*\*\s*→\s*Page\s*(\d+|X)/i);
+            // - **Texte :** Description → Page X
+            // Regex explanation:
+            // ^-?\s*       : Optional bullet point
+            // \*\*\[?      : Start bold, optional bracket
+            // (.+?)        : Capture choice text (Group 1)
+            // \]?\*\*      : End bold, optional bracket
+            // .*?          : Optional description text
+            // →\s*Page     : Arrow and Page keyword
+            // \s*(\d+|X)   : Page number (Group 2)
+            const match = line.match(/^-?\s*\*\*\[?(.+?)\]?\*\*\s*.*?→\s*Page\s*(\d+|X)/i);
 
-            const match = match1 || match2;
             if (match) {
                 choices.push({
                     text: match[1].trim(),
