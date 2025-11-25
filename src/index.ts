@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
-import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connectMongo } from './config/mongo';
 import { testMySQLConnection, sequelize } from './config/mysql';
@@ -29,7 +28,6 @@ app.use(cors({
 app.use(helmet({
     crossOriginResourcePolicy: { policy: "cross-origin" }
 }));
-app.use(morgan('dev'));
 app.use('/uploads', express.static('public/uploads'));
 
 // Routes

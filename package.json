@@ -37,7 +37,6 @@
         "@types/jest": "^29.5.12",
         "@types/jsonwebtoken": "^9.0.5",
         "@types/mime": "^3.0.4",
-        "@types/morgan": "^1.9.9",
         "@types/ms": "^2.1.0",
         "@types/multer": "^2.0.0",
         "@types/node": "^20.12.7",
