@@ -27,6 +27,16 @@ export const createPage = async (req: Request, res: Response) => {
             endingType,
             choices,
         } as IPage);
+
+        // If this is the first page and story doesn't have a startPageId, set it automatically
+        if (!story.startPageId) {
+            const pageCount = await Page.countDocuments({ storyId });
+            if (pageCount === 1) {
+                story.startPageId = page._id.toString();
+                await story.save();
+            }
+        }
+
         res.status(201).json(page);
     } catch (err) {
         console.error(err);
