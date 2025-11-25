@@ -22,13 +22,9 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(express.json());
-app.use(cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
-    credentials: true,
-}));
-app.use(helmet({
-    crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
+app.use(cors());
+app.use(helmet());
+
 app.use('/uploads', express.static('public/uploads'));
 
 // Routes
