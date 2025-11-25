@@ -1,7 +1,17 @@
 import { Schema, model, Document } from 'mongoose';
 
-export type ReportType = 'inappropriate_content' | 'spam' | 'copyright' | 'harassment' | 'other';
-export type ReportStatus = 'pending' | 'reviewed' | 'resolved' | 'dismissed';
+export type ReportType =
+    'inappropriate_content' |
+    'spam' |
+    'copyright' |
+    'harassment' |
+    'other';
+
+export type ReportStatus =
+    'pending' |
+    'reviewed' |
+    'resolved' |
+    'dismissed';
 
 export interface IReport extends Document {
     storyId: string;
@@ -10,7 +20,7 @@ export interface IReport extends Document {
     description?: string;
     status: ReportStatus;
     adminNotes?: string;
-    resolvedBy?: string;
+    resolvedBy?: string;  // MySQL user ID
     createdAt: Date;
     updatedAt: Date;
 }
@@ -30,18 +40,23 @@ const ReportSchema = new Schema<IReport>(
             enum: ['pending', 'reviewed', 'resolved', 'dismissed'],
             default: 'pending',
         },
-        adminNotes: { type: String },
-        resolvedBy: { type: String },
+        adminNotes: { type: String, maxlength: 2000 },
+        resolvedBy: { type: String }, // MySQL User ID
     },
-    {
-        timestamps: true,
-    }
+    { timestamps: true }
 );
 
-// Index for efficient queries
+// Basic indexes
 ReportSchema.index({ storyId: 1 });
-ReportSchema.index({ status: 1 });
 ReportSchema.index({ reporterId: 1 });
+ReportSchema.index({ status: 1 });
+
+// Optimized for moderation flows
+ReportSchema.index({ status: 1, createdAt: -1 });
+
+ReportSchema.index(
+    { storyId: 1, reporterId: 1, type: 1 },
+    { unique: true }
+);
 
 export const Report = model<IReport>('Report', ReportSchema);
-

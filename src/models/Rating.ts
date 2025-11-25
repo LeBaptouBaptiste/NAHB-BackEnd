@@ -24,5 +24,10 @@ const RatingSchema = new Schema<IRating>(
 // Compound index to ensure one rating per user per story
 RatingSchema.index({ storyId: 1, userId: 1 }, { unique: true });
 
+// useful indexes
+RatingSchema.index({ storyId: 1 });
+RatingSchema.index({ userId: 1 });
+
+
 export const Rating = model<IRating>('Rating', RatingSchema);
 

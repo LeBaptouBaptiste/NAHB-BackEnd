@@ -6,17 +6,17 @@ interface UserAttributes {
     username: string;
     email: string;
     password_hash: string;
-    role: string;
+    banned: boolean;
 }
 
-interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'role'> { }
+interface UserCreationAttributes extends Optional<UserAttributes, 'id' | 'banned'> {}
 
-export class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
-    declare public id: number;
-    declare public username: string;
-    declare public email: string;
-    declare public password_hash: string;
-    declare public role: string;
+export class User extends Model<UserAttributes, UserCreationAttributes> {
+    declare id: number;
+    declare username: string;
+    declare email: string;
+    declare password_hash: string;
+    declare banned: boolean;
 }
 
 User.init(
@@ -40,9 +40,9 @@ User.init(
             type: DataTypes.STRING,
             allowNull: false,
         },
-        role: {
-            type: DataTypes.ENUM('admin', 'author', 'reader', 'banned'),
-            defaultValue: 'reader',
+        banned: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
         },
     },
     {
