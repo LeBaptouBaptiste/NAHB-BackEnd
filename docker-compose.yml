@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nahb-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      PORT: ${PORT}
+      MONGO_URI: ${MONGO_URI}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DB: ${MYSQL_DB}
+      JWT_SECRET: ${JWT_SECRET}
+      NODE_ENV: ${NODE_ENV}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
+      OLLAMA_MODEL: ${OLLAMA_MODEL}
+    depends_on:
+      - mongo
+      - mysql
+    ports:
+      - "${PORT}:${PORT}"
+    networks:
+      - nahb-network
+
+  mongo:
+    image: mongo:latest
+    container_name: nahb-mongo
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "${MONGO_PORT}:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - nahb-network
+
+  mysql:
+    image: mysql:8.0
+    container_name: nahb-mysql
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DB}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - nahb-network
+
+networks:
+  nahb-network:
+    driver: bridge
+
+volumes:
+  mongo-data:
+  mysql-data:
