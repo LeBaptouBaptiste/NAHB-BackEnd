@@ -31,20 +31,20 @@ app.use(helmet({
 app.use('/uploads', express.static('public/uploads'));
 
 // Routes
-app.use('/auth', authRoutes);
-app.use('/stories', storyRoutes);
-app.use('/pages', pageRoutes);
-app.use('/game', gameRoutes);
-app.use('/ratings', ratingRoutes);
-app.use('/reports', reportRoutes);
-app.use('/admin', adminRoutes);
-app.use('/ai', aiStoryRoutes);
-app.use('/upload', uploadRoutes);
-app.use('/favorites', favoriteRoutes);
-app.use('/user', userRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/stories', storyRoutes);
+app.use('/api/pages', pageRoutes);
+app.use('/api/game', gameRoutes);
+app.use('/api/ratings', ratingRoutes);
+app.use('/api/reports', reportRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/ai', aiStoryRoutes);
+app.use('/api/upload', uploadRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/user', userRoutes);
 
 // Root endpoint
-app.get('/api', (req, res) => {
+app.get('/', (req, res) => {
     res.send('NAHB Backend API Running');
 });
 
