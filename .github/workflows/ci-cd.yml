@@ -1,0 +1,140 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [20.x]
+    
+    services:
+      mongodb:
+        image: mongo:7.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.adminCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run linter
+      run: npm run lint
+      continue-on-error: true
+    
+    - name: Build TypeScript
+      run: npm run build
+      continue-on-error: true
+    
+    # Uncomment when tests are configured
+    # - name: Run tests
+    #   run: npm test
+    #   env:
+    #     MONGODB_URI: mongodb://localhost:27017/test
+    #     JWT_SECRET: test-secret
+    #     NODE_ENV: test
+    
+    - name: Build Docker image
+      run: docker build -t rpgbook-backend:${{ github.sha }} .
+    
+    - name: Test Docker image
+      run: |
+        docker run -d --name test-backend \
+          -e MONGODB_URI=mongodb://host.docker.internal:27017/test \
+          -e JWT_SECRET=test-secret \
+          -e PORT=3000 \
+          --network="host" \
+          rpgbook-backend:${{ github.sha }}
+        sleep 5
+        docker logs test-backend
+        docker stop test-backend
+        docker rm test-backend
+    
+    - name: Save Docker image
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      run: docker save rpgbook-backend:${{ github.sha }} | gzip > backend-image.tar.gz
+    
+    - name: Upload Docker image artifact
+      uses: actions/upload-artifact@v4
+      if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+      with:
+        name: backend-docker-image-${{ github.sha }}
+        path: backend-image.tar.gz
+        retention-days: 7
+    
+    - name: Build summary
+      run: |
+        echo "### ✅ Build Successful!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Branch:** ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Node:** ${{ matrix.node-version }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Docker Image:** rpgbook-backend:${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+  
+  # Uncomment when ready to push to Docker Hub
+  # docker-push:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #   
+  #   steps:
+  #   - name: Checkout code
+  #     uses: actions/checkout@v4
+  #   
+  #   - name: Download Docker image
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: backend-docker-image-${{ github.sha }}
+  #   
+  #   - name: Load Docker image
+  #     run: docker load < backend-image.tar.gz
+  #   
+  #   - name: Login to Docker Hub
+  #     uses: docker/login-action@v3
+  #     with:
+  #       username: ${{ secrets.DOCKER_USERNAME }}
+  #       password: ${{ secrets.DOCKER_PASSWORD }}
+  #   
+  #   - name: Tag and push Docker image
+  #     run: |
+  #       docker tag rpgbook-backend:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/rpgbook-backend:latest
+  #       docker tag rpgbook-backend:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/rpgbook-backend:${{ github.sha }}
+  #       docker push ${{ secrets.DOCKER_USERNAME }}/rpgbook-backend:latest
+  #       docker push ${{ secrets.DOCKER_USERNAME }}/rpgbook-backend:${{ github.sha }}
+
+  # Uncomment for deployment to your server
+  # deploy:
+  #   needs: docker-push
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+  #   
+  #   steps:
+  #   - name: Deploy to production server
+  #     uses: appleboy/ssh-action@master
+  #     with:
+  #       host: ${{ secrets.SERVER_HOST }}
+  #       username: ${{ secrets.SERVER_USER }}
+  #       key: ${{ secrets.SERVER_SSH_KEY }}
+  #       script: |
+  #         docker pull ${{ secrets.DOCKER_USERNAME }}/rpgbook-backend:latest
+  #         docker-compose -f /path/to/docker-compose.yml up -d backend
