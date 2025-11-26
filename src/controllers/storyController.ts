@@ -111,3 +111,13 @@ export const getPublishedStories = async (req: Request, res: Response) => {
         res.status(500).json({ message: 'Server error' });
     }
 };
+
+export const getTags = async (req: Request, res: Response) => {
+    try {
+        const tags = await Story.distinct('tags', { status: 'published' });
+        res.json(tags);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};

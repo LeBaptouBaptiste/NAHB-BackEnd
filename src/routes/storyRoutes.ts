@@ -6,6 +6,7 @@ import {
     updateStory,
     deleteStory,
     getPublishedStories,
+    getTags,
 } from '../controllers/storyController';
 import { authenticate, authorize } from '../middleware/auth';
 
@@ -19,6 +20,7 @@ router.delete('/:id', authenticate, authorize(['author', 'admin']), deleteStory)
 
 // Public routes
 router.get('/published', getPublishedStories);
+router.get('/tags', getTags);
 router.get('/:id', getStory);
 
 export default router;
