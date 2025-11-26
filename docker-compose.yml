@@ -1,11 +1,14 @@
+version: '3.8'
+
 services:
   backend:
-    build: .
-    ports:
-      - "${PORT}:${PORT}"
-    volumes:
-      - .:/app
-      - /app/node_modules
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nahb-backend
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
       PORT: ${PORT}
       MONGO_URI: ${MONGO_URI}
@@ -20,11 +23,17 @@ services:
     depends_on:
       - mongo
       - mysql
+    ports:
+      - "${PORT}:${PORT}"
     networks:
       - nahb-network
 
   mongo:
     image: mongo:latest
+    container_name: nahb-mongo
+    restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "${MONGO_PORT}:27017"
     volumes:
@@ -34,11 +43,15 @@ services:
 
   mysql:
     image: mysql:8.0
-    ports:
-      - "${MYSQL_PORT}:3306"
+    container_name: nahb-mysql
+    restart: unless-stopped
+    env_file:
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: ${MYSQL_DB}
+    ports:
+      - "${MYSQL_PORT}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
     networks:

@@ -1,26 +1,20 @@
-# Étape 1 : Builder (TypeScript → JavaScript)
-FROM node:18 AS builder
+FROM node:20
 
 WORKDIR /app
 
+# Installer les dépendances
 COPY package*.json ./
 RUN npm install
 
-COPY . .
+# Copier le code
+COPY tsconfig.json ./
+COPY src ./src
+
+# Build TypeScript
 RUN npm run build
 
+# Exposer le port paramétré
+EXPOSE 5000
 
-# Étape 2 : Runner (image plus légère)
-FROM node:18-slim
-
-WORKDIR /app
-
-COPY package*.json ./
-RUN npm install --omit=dev
-
-# Copier uniquement le dist
-COPY --from=builder /app/dist ./dist
-
-EXPOSE 10000
-
+# Commande de démarrage
 CMD ["node", "dist/index.js"]
