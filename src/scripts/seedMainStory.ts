@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import { Story } from '../models/Story';
-import { Page } from '../models/Page';
+import { Story } from '../models/mongoose/Story';
+import { Page } from '../models/mongoose/Page';
 import { connectMongo } from '../config/mongo';
 
 dotenv.config();

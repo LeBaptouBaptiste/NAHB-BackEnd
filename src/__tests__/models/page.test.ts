@@ -1,5 +1,5 @@
-import { Page, IPage } from '../../models/Page';
-import { Story } from '../../models/Story';
+import { Page, IPage } from '../../models/mongoose/Page';
+import { Story } from '../../models/mongoose/Story';
 
 describe('Page Model', () => {
     let testStory: any;

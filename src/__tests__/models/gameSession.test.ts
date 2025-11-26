@@ -1,6 +1,6 @@
-import { GameSession, IGameSession } from '../../models/GameSession';
-import { Story } from '../../models/Story';
-import { Page } from '../../models/Page';
+import { GameSession, IGameSession } from '../../models/mongoose/GameSession';
+import { Story } from '../../models/mongoose/Story';
+import { Page } from '../../models/mongoose/Page';
 
 describe('GameSession Model', () => {
     let testStory: any;

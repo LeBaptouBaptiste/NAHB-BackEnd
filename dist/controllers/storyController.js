@@ -4,8 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getPublishedStories = exports.deleteStory = exports.updateStory = exports.getStory = exports.getMyStories = exports.createStory = void 0;
-const Story_1 = require("../models/Story");
-const User_1 = __importDefault(require("../models/User"));
+const Story_1 = require("../models/mongoose/Story");
+const User_1 = __importDefault(require("../models/sequelize/User"));
 // Helper to ensure the requesting user is the author
 const isAuthor = async (userId, authorId) => {
     const user = await User_1.default.findByPk(userId);
@@ -14,11 +14,12 @@ const isAuthor = async (userId, authorId) => {
 const createStory = async (req, res) => {
     // @ts-ignore - userId injected by auth middleware
     const userId = req.userId;
-    const { title, description, tags, theme } = req.body;
+    const { title, description, tags, theme, imageUrl } = req.body;
     try {
         const story = await Story_1.Story.create({
             title,
             description,
+            imageUrl,
             tags,
             theme,
             authorId: userId.toString(),
@@ -64,7 +65,7 @@ const updateStory = async (req, res) => {
     // @ts-ignore
     const userId = req.userId;
     const { id } = req.params;
-    const { title, description, tags, status, theme } = req.body;
+    const { title, description, tags, status, theme, imageUrl } = req.body;
     try {
         const story = await Story_1.Story.findById(id);
         if (!story)
@@ -76,6 +77,8 @@ const updateStory = async (req, res) => {
             story.title = title;
         if (description)
             story.description = description;
+        if (imageUrl)
+            story.imageUrl = imageUrl;
         if (tags)
             story.tags = tags;
         if (status)

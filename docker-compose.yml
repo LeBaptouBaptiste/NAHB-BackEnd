@@ -5,7 +5,7 @@ services:
     ports:
       - "5000:5000"
     volumes:
-      - ./src:/app
+      - .:/app
       - /app/node_modules
     environment:
       - PORT=5000

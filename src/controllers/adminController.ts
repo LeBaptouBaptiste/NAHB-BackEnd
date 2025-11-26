@@ -1,9 +1,10 @@
 import { Request, Response } from 'express';
-import { Story } from '../models/Story';
-import { Report } from '../models/Report';
-import { Rating } from '../models/Rating';
-import { GameSession } from '../models/GameSession';
-import User from '../models/User';
+import { Story } from '../models/mongoose/Story';
+import { Report } from '../models/sequelize/Report';
+import { Rating } from '../models/sequelize/Rating';
+import { GameSession } from '../models/mongoose/GameSession';
+import User from '../models/sequelize/User';
+import { sequelize } from '../config/mysql';
 
 // Middleware to check if user is admin
 export const requireAdmin = async (req: Request, res: Response, next: any) => {
@@ -122,22 +123,22 @@ export const getAllReports = async (req: Request, res: Response) => {
             filter.status = status;
         }
 
-        const skip = (Number(page) - 1) * Number(limit);
+        const offset = (Number(page) - 1) * Number(limit);
 
-        const reports = await Report.find(filter)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(Number(limit));
-
-        const total = await Report.countDocuments(filter);
+        const { count, rows: reports } = await Report.findAndCountAll({
+            where: filter,
+            order: [['createdAt', 'DESC']],
+            limit: Number(limit),
+            offset
+        });
 
         res.json({
             reports,
             pagination: {
                 page: Number(page),
                 limit: Number(limit),
-                total,
-                pages: Math.ceil(total / Number(limit)),
+                total: count,
+                pages: Math.ceil(count / Number(limit)),
             },
         });
     } catch (err) {
@@ -159,19 +160,16 @@ export const updateReportStatus = async (req: Request, res: Response) => {
     }
 
     try {
-        const report = await Report.findByIdAndUpdate(
-            reportId,
-            {
-                status,
-                adminNotes,
-                resolvedBy: adminId.toString(),
-            },
-            { new: true }
-        );
-
+        const report = await Report.findByPk(reportId);
         if (!report) {
             return res.status(404).json({ message: 'Report not found' });
         }
+
+        report.status = status;
+        // @ts-ignore
+        if (adminNotes) report.adminNotes = adminNotes; // adminNotes not in interface? Check model.
+        report.resolvedBy = adminId;
+        await report.save();
 
         res.json(report);
     } catch (err) {
@@ -186,9 +184,10 @@ export const getPlatformStats = async (req: Request, res: Response) => {
         // User stats
         const totalUsers = await User.count();
         const usersByRole = await User.findAll({
-            attributes: ['role'],
+            attributes: ['role', [sequelize.fn('COUNT', sequelize.col('role')), 'count']],
             group: ['role'],
-        });
+            raw: true
+        }) as any[];
 
         // Story stats
         const totalStories = await Story.countDocuments();
@@ -214,24 +213,22 @@ export const getPlatformStats = async (req: Request, res: Response) => {
         ]);
 
         // Report stats
-        const pendingReports = await Report.countDocuments({ status: 'pending' });
-        const totalReports = await Report.countDocuments();
+        const pendingReports = await Report.count({ where: { status: 'pending' } });
+        const totalReports = await Report.count();
 
         // Rating stats
-        const ratingStats = await Rating.aggregate([
-            {
-                $group: {
-                    _id: null,
-                    averageRating: { $avg: '$score' },
-                    totalRatings: { $sum: 1 },
-                },
-            },
-        ]);
+        const ratingStats = await Rating.findOne({
+            attributes: [
+                [sequelize.fn('AVG', sequelize.col('value')), 'averageRating'],
+                [sequelize.fn('COUNT', sequelize.col('id')), 'totalRatings']
+            ],
+            raw: true
+        }) as any;
 
         res.json({
             users: {
                 total: totalUsers,
-                byRole: usersByRole,
+                byRole: usersByRole.map(r => ({ _id: r.role, count: r.count })),
             },
             stories: {
                 total: totalStories,
@@ -248,8 +245,8 @@ export const getPlatformStats = async (req: Request, res: Response) => {
                 pending: pendingReports,
             },
             ratings: {
-                average: Math.round((ratingStats[0]?.averageRating || 0) * 10) / 10,
-                total: ratingStats[0]?.totalRatings || 0,
+                average: ratingStats ? Math.round(Number(ratingStats.averageRating) * 10) / 10 : 0,
+                total: ratingStats ? Number(ratingStats.totalRatings) : 0,
             },
         });
     } catch (err) {

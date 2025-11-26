@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import { Page, IPage } from '../models/Page';
-import { Story } from '../models/Story';
-import User from '../models/User';
+import { Page, IPage } from '../models/mongoose/Page';
+import { Story } from '../models/mongoose/Story';
+import User from '../models/sequelize/User';
 
 // Helper to verify author ownership
 const isAuthor = async (userId: number, authorId: string) => {
@@ -27,6 +27,16 @@ export const createPage = async (req: Request, res: Response) => {
             endingType,
             choices,
         } as IPage);
+
+        // If this is the first page and story doesn't have a startPageId, set it automatically
+        if (!story.startPageId) {
+            const pageCount = await Page.countDocuments({ storyId });
+            if (pageCount === 1) {
+                story.startPageId = page._id.toString();
+                await story.save();
+            }
+        }
+
         res.status(201).json(page);
     } catch (err) {
         console.error(err);

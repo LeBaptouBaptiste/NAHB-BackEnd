@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { connectMongo } from './config/mongo';
 import { testMySQLConnection, sequelize } from './config/mysql';
+import './models/sequelize'; // Register models
 import authRoutes from './routes/authRoutes';
 import storyRoutes from './routes/storyRoutes';
 import pageRoutes from './routes/pageRoutes';
@@ -13,6 +14,8 @@ import reportRoutes from './routes/reportRoutes';
 import adminRoutes from './routes/adminRoutes';
 import aiStoryRoutes from './routes/aiStoryRoutes';
 import uploadRoutes from './routes/uploadRoutes';
+import favoriteRoutes from './routes/favoriteRoutes';
+import userRoutes from './routes/userRoutes';
 
 dotenv.config();
 
@@ -40,6 +43,8 @@ app.use('/api/reports', reportRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/ai', aiStoryRoutes);
 app.use('/api/upload', uploadRoutes);
+app.use('/api/favorites', favoriteRoutes);
+app.use('/api/user', userRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

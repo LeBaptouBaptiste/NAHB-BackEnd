@@ -8,5 +8,7 @@ router.post('/start', auth_1.authenticate, gameController_1.startGame);
 router.post('/choice', auth_1.authenticate, gameController_1.makeChoice);
 router.get('/sessions', auth_1.authenticate, gameController_1.getSessions);
 router.get('/session/:id', auth_1.authenticate, gameController_1.getSession);
+router.get('/session/:sessionId/path-stats', auth_1.authenticate, gameController_1.getPathStats);
+router.get('/story/:storyId/stats', auth_1.authenticate, gameController_1.getStoryStats);
 exports.default = router;
 //# sourceMappingURL=gameRoutes.js.map
