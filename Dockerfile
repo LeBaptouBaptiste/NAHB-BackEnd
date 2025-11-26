@@ -21,6 +21,6 @@ RUN npm install --omit=dev
 # Copier uniquement le dist
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 5000
+EXPOSE 10000
 
 CMD ["node", "dist/index.js"]
