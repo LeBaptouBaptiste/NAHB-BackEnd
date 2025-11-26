@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { Story } from '../models/Story';
-import { GameSession } from '../models/GameSession';
-import { Rating } from '../models/Rating';
-import { Page } from '../models/Page';
+import { Story } from '../models/mongoose/Story';
+import { GameSession } from '../models/mongoose/GameSession';
+import { Rating } from '../models/sequelize/Rating';
+import { Page } from '../models/mongoose/Page';
 
 // Get user statistics
 export const getUserStats = async (req: Request, res: Response) => {
@@ -36,9 +36,9 @@ export const getUserStats = async (req: Request, res: Response) => {
         });
 
         // Average Rating (average of ratings given by user)
-        const userRatings = await Rating.find({ userId: userId.toString() });
+        const userRatings = await Rating.findAll({ where: { userId } });
         const averageRating = userRatings.length > 0
-            ? userRatings.reduce((sum, r) => sum + r.score, 0) / userRatings.length
+            ? userRatings.reduce((sum, r) => sum + r.value, 0) / userRatings.length
             : 0;
 
         res.json({

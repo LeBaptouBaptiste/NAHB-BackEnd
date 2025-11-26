@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.getMe = exports.login = exports.register = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
-const User_1 = __importDefault(require("../models/User"));
+const User_1 = __importDefault(require("../models/sequelize/User"));
 const constants_1 = require("../utils/constants");
 const register = async (req, res) => {
     const { username, email, password } = req.body;

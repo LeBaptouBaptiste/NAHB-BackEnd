@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { GameSession } from '../models/GameSession';
-import { Story } from '../models/Story';
-import { Page } from '../models/Page';
-import User from '../models/User';
+import { GameSession } from '../models/mongoose/GameSession';
+import { Story } from '../models/mongoose/Story';
+import { Page } from '../models/mongoose/Page';
+import User from '../models/sequelize/User';
 import { authenticate } from '../middleware/auth';
 
 // Start a new game session

@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import { connectMongo } from './config/mongo';
 import { testMySQLConnection, sequelize } from './config/mysql';
+import './models/sequelize'; // Register models
 import authRoutes from './routes/authRoutes';
 import storyRoutes from './routes/storyRoutes';
 import pageRoutes from './routes/pageRoutes';

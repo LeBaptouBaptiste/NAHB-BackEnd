@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { Report } from '../models/Report';
-import { Story } from '../models/Story';
+import { Report } from '../models/sequelize/Report';
+import { Story } from '../models/mongoose/Story';
+import { Op } from 'sequelize';
 
 // Report a story
 export const reportStory = async (req: Request, res: Response) => {
@@ -11,8 +12,8 @@ export const reportStory = async (req: Request, res: Response) => {
 
     const validTypes = ['inappropriate_content', 'spam', 'copyright', 'harassment', 'other'];
     if (!type || !validTypes.includes(type)) {
-        return res.status(400).json({ 
-            message: 'Invalid report type. Must be one of: ' + validTypes.join(', ') 
+        return res.status(400).json({
+            message: 'Invalid report type. Must be one of: ' + validTypes.join(', ')
         });
     }
 
@@ -25,9 +26,11 @@ export const reportStory = async (req: Request, res: Response) => {
 
         // Check if user already reported this story
         const existingReport = await Report.findOne({
-            storyId,
-            reporterId: userId.toString(),
-            status: { $in: ['pending', 'reviewed'] },
+            where: {
+                storyId,
+                userId,
+                status: { [Op.in]: ['pending', 'reviewed'] },
+            }
         });
 
         if (existingReport) {
@@ -36,7 +39,7 @@ export const reportStory = async (req: Request, res: Response) => {
 
         const report = await Report.create({
             storyId,
-            reporterId: userId.toString(),
+            userId,
             type,
             description,
             status: 'pending',
@@ -55,8 +58,10 @@ export const getMyReports = async (req: Request, res: Response) => {
     const userId = (req as any).userId;
 
     try {
-        const reports = await Report.find({ reporterId: userId.toString() })
-            .sort({ createdAt: -1 });
+        const reports = await Report.findAll({
+            where: { userId },
+            order: [['createdAt', 'DESC']]
+        });
         res.json(reports);
     } catch (err) {
         console.error(err);

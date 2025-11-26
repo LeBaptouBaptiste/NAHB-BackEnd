@@ -4,9 +4,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setStartPage = exports.deletePage = exports.updatePage = exports.getPage = exports.getPagesByStory = exports.createPage = void 0;
-const Page_1 = require("../models/Page");
-const Story_1 = require("../models/Story");
-const User_1 = __importDefault(require("../models/User"));
+const Page_1 = require("../models/mongoose/Page");
+const Story_1 = require("../models/mongoose/Story");
+const User_1 = __importDefault(require("../models/sequelize/User"));
 // Helper to verify author ownership
 const isAuthor = async (userId, authorId) => {
     const user = await User_1.default.findByPk(userId);
@@ -31,6 +31,14 @@ const createPage = async (req, res) => {
             endingType,
             choices,
         });
+        // If this is the first page and story doesn't have a startPageId, set it automatically
+        if (!story.startPageId) {
+            const pageCount = await Page_1.Page.countDocuments({ storyId });
+            if (pageCount === 1) {
+                story.startPageId = page._id.toString();
+                await story.save();
+            }
+        }
         res.status(201).json(page);
     }
     catch (err) {

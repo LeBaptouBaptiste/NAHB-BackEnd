@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import { Rating } from '../models/Rating';
-import { Story } from '../models/Story';
+import { Rating } from '../models/sequelize/Rating';
+import { Story } from '../models/mongoose/Story';
+import { sequelize } from '../config/mysql';
 
 // Add or update a rating for a story
 export const rateStory = async (req: Request, res: Response) => {
@@ -24,13 +25,24 @@ export const rateStory = async (req: Request, res: Response) => {
         }
 
         // Upsert rating (create or update)
-        const rating = await Rating.findOneAndUpdate(
-            { storyId, userId: userId.toString() },
-            { score, comment },
-            { upsert: true, new: true, runValidators: true }
-        );
+        const existingRating = await Rating.findOne({
+            where: { storyId, userId }
+        });
 
-        res.json(rating);
+        if (existingRating) {
+            existingRating.value = score;
+            existingRating.comment = comment;
+            await existingRating.save();
+            return res.json(existingRating);
+        } else {
+            const newRating = await Rating.create({
+                storyId,
+                userId,
+                value: score,
+                comment
+            });
+            return res.json(newRating);
+        }
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -43,40 +55,36 @@ export const getStoryRatings = async (req: Request, res: Response) => {
     const { page = 1, limit = 10 } = req.query;
 
     try {
-        const skip = (Number(page) - 1) * Number(limit);
+        const offset = (Number(page) - 1) * Number(limit);
 
-        const ratings = await Rating.find({ storyId })
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(Number(limit));
-
-        const total = await Rating.countDocuments({ storyId });
+        const { count, rows: ratings } = await Rating.findAndCountAll({
+            where: { storyId },
+            order: [['createdAt', 'DESC']],
+            limit: Number(limit),
+            offset
+        });
 
         // Calculate average
-        const aggregation = await Rating.aggregate([
-            { $match: { storyId } },
-            {
-                $group: {
-                    _id: null,
-                    averageScore: { $avg: '$score' },
-                    totalRatings: { $sum: 1 },
-                },
-            },
-        ]);
-
-        const stats = aggregation[0] || { averageScore: 0, totalRatings: 0 };
+        const stats = await Rating.findOne({
+            where: { storyId },
+            attributes: [
+                [sequelize.fn('AVG', sequelize.col('value')), 'averageScore'],
+                [sequelize.fn('COUNT', sequelize.col('id')), 'totalRatings']
+            ],
+            raw: true
+        }) as any;
 
         res.json({
             ratings,
             pagination: {
                 page: Number(page),
                 limit: Number(limit),
-                total,
-                pages: Math.ceil(total / Number(limit)),
+                total: count,
+                pages: Math.ceil(count / Number(limit)),
             },
             stats: {
-                averageScore: Math.round(stats.averageScore * 10) / 10,
-                totalRatings: stats.totalRatings,
+                averageScore: stats ? Math.round(Number(stats.averageScore) * 10) / 10 : 0,
+                totalRatings: stats ? Number(stats.totalRatings) : 0,
             },
         });
     } catch (err) {
@@ -92,7 +100,7 @@ export const getUserRating = async (req: Request, res: Response) => {
     const { storyId } = req.params;
 
     try {
-        const rating = await Rating.findOne({ storyId, userId: userId.toString() });
+        const rating = await Rating.findOne({ where: { storyId, userId } });
         res.json(rating || null);
     } catch (err) {
         console.error(err);
@@ -107,7 +115,7 @@ export const deleteRating = async (req: Request, res: Response) => {
     const { storyId } = req.params;
 
     try {
-        const result = await Rating.findOneAndDelete({ storyId, userId: userId.toString() });
+        const result = await Rating.destroy({ where: { storyId, userId } });
         if (!result) {
             return res.status(404).json({ message: 'Rating not found' });
         }

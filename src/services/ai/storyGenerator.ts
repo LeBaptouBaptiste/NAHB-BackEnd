@@ -9,8 +9,8 @@ import {
     GeneratedPage,
     GeneratedChoice,
 } from './types';
-import { Story, IStory } from '../../models/Story';
-import { Page, IPage } from '../../models/Page';
+import { Story, IStory } from '../../models/mongoose/Story';
+import { Page, IPage } from '../../models/mongoose/Page';
 
 /**
  * Service for generating interactive stories using AI

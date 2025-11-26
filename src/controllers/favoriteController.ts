@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { Favorite } from '../models/Favorite';
-import { Story } from '../models/Story';
+import { Favorite } from '../models/mongoose/Favorite';
+import { Story } from '../models/mongoose/Story';
 
 // Toggle favorite status
 export const toggleFavorite = async (req: Request, res: Response) => {
@@ -15,7 +15,7 @@ export const toggleFavorite = async (req: Request, res: Response) => {
         }
 
         const existing = await Favorite.findOne({ userId: userId.toString(), storyId });
-        
+
         if (existing) {
             await Favorite.deleteOne({ _id: existing._id });
             res.json({ favorited: false });
