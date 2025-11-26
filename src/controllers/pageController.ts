@@ -12,7 +12,7 @@ const isAuthor = async (userId: number, authorId: string) => {
 export const createPage = async (req: Request, res: Response) => {
     // @ts-ignore
     const userId = (req as any).userId;
-    const { storyId, content, image, isEnding, endingType, choices } = req.body;
+    const { storyId, content, image, isEnding, endingType, choices, hotspots } = req.body;
     try {
         const story = await Story.findById(storyId);
         if (!story) return res.status(404).json({ message: 'Story not found' });
@@ -26,6 +26,7 @@ export const createPage = async (req: Request, res: Response) => {
             isEnding: !!isEnding,
             endingType,
             choices,
+            hotspots,
         } as IPage);
 
         // If this is the first page and story doesn't have a startPageId, set it automatically
@@ -71,7 +72,7 @@ export const updatePage = async (req: Request, res: Response) => {
     // @ts-ignore
     const userId = (req as any).userId;
     const { id } = req.params;
-    const { content, image, isEnding, endingType, choices } = req.body;
+    const { content, image, isEnding, endingType, choices, hotspots } = req.body;
     try {
         const page = await Page.findById(id);
         if (!page) return res.status(404).json({ message: 'Page not found' });
@@ -85,7 +86,12 @@ export const updatePage = async (req: Request, res: Response) => {
         if (isEnding !== undefined) page.isEnding = !!isEnding;
         if (endingType !== undefined) page.endingType = endingType;
         if (choices !== undefined) page.choices = choices;
+        if (hotspots !== undefined) {
+            console.log('Updating hotspots for page', id, hotspots);
+            page.hotspots = hotspots;
+        }
         await page.save();
+        console.log('Page saved:', page);
         res.json(page);
     } catch (err) {
         console.error(err);

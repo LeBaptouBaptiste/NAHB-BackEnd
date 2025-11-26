@@ -2,7 +2,10 @@ import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import { Story } from '../models/mongoose/Story';
 import { Page } from '../models/mongoose/Page';
+import User from '../models/sequelize/User';
 import { connectMongo } from '../config/mongo';
+import bcrypt from 'bcryptjs';
+import { sequelize } from '../config/mysql';
 
 dotenv.config();
 
@@ -11,6 +14,21 @@ const ASSET_BASE = '/RPGAssets/';
 async function seedMainStory() {
     try {
         await connectMongo();
+        await sequelize.authenticate();
+        console.log('MySQL Connected');
+
+        // Create or find test user
+        const hashedPassword = await bcrypt.hash('testtest', 10);
+        const [user] = await User.findOrCreate({
+            where: { email: 'test@test' },
+            defaults: {
+                username: 'test',
+                email: 'test@test',
+                password_hash: hashedPassword,
+                role: 'author'
+            }
+        });
+        console.log(`👤 User 'test' ready (ID: ${user.id})`);
 
         console.log('🌱 Starting story seed...');
 
@@ -28,7 +46,7 @@ async function seedMainStory() {
             description: "Une aventure interactive avec système de dés et choix de classe. Incarnez un Guerrier, un Mage ou un Assassin dans un donjon rempli de dangers mortels.",
             tags: ['fantasy', 'rpg', 'interactive', 'dice-based', 'dungeon', 'dragon'],
             status: 'published',
-            authorId: 'system',
+            authorId: user.id.toString(),
             theme: 'dark-fantasy-dungeon',
             stats: {
                 views: 0,
@@ -491,7 +509,21 @@ Tes cris résonnent dans la salle vide.`,
                 { text: 'Crier pour attirer l\'attention', targetPageId: page5._id.toString() },
                 { text: '[ASSASSIN] Chercher un passage secret (1d20 ≥12)', targetPageId: page4bis._id.toString() },
                 { text: '[MAGE] Lancer une boule de feu', targetPageId: gameOverGeneric._id.toString() },
-                { text: '[GUERRIER] Défoncer le mur', targetPageId: page2._id.toString() }
+                { text: '[GUERRIER] Défoncer le mur', targetPageId: page2._id.toString() },
+                { text: 'Examiner les murs', targetPageId: page2._id.toString() } // Flavor choice
+            ],
+            hotspots: [
+                {
+                    x: 85, y: 20, width: 10, height: 20,
+                    label: "Mur suspect",
+                    targetPageId: page4bis._id.toString(),
+                    diceRoll: { enabled: true, difficulty: 12, type: 'custom', failurePageId: page2._id.toString() }
+                },
+                {
+                    x: 10, y: 80, width: 15, height: 15,
+                    label: "Arme au sol",
+                    targetPageId: page4._id.toString() // Shortcut to search
+                }
             ]
         });
 
@@ -546,7 +578,20 @@ Tes cris résonnent dans la salle vide.`,
                 { text: 'Utiliser le médaillon (si possédé)', targetPageId: page11._id.toString() },
                 { text: '[GUERRIER] Crier un cri de guerre', targetPageId: gameOverDragon._id.toString() },
                 { text: '[MAGE] Lancer un sort', targetPageId: page12._id.toString() },
-                { text: '[ASSASSIN] Backstab furtif', targetPageId: gameOverDragon._id.toString() }
+                { text: '[ASSASSIN] Backstab furtif', targetPageId: gameOverDragon._id.toString() },
+                { text: 'Se cacher derrière un pilier', targetPageId: page7._id.toString() } // Side choice
+            ],
+            hotspots: [
+                {
+                    x: 50, y: 40, width: 20, height: 20,
+                    label: "Tête du Dragon",
+                    targetPageId: page9._id.toString()
+                },
+                {
+                    x: 20, y: 80, width: 15, height: 15,
+                    label: "Tas d'or",
+                    targetPageId: page18._id.toString()
+                }
             ]
         });
 
@@ -679,6 +724,14 @@ Tes cris résonnent dans la salle vide.`,
                 { text: 'Examiner (1d20 ≥13)', targetPageId: page20bis._id.toString() },
                 { text: 'Frapper le coffre', targetPageId: page20bis._id.toString() },
                 { text: 'Ignorer et passer', targetPageId: page10._id.toString() }
+            ],
+            hotspots: [
+                {
+                    x: 45, y: 55, width: 10, height: 10,
+                    label: "Serrure étrange",
+                    targetPageId: page20bis._id.toString(),
+                    diceRoll: { enabled: true, difficulty: 13, type: 'custom', failurePageId: page20bis._id.toString() }
+                }
             ]
         });
 

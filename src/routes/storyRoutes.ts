@@ -18,9 +18,9 @@ router.get('/my', authenticate, authorize(['author', 'admin']), getMyStories);
 router.put('/:id', authenticate, authorize(['author', 'admin']), updateStory);
 router.delete('/:id', authenticate, authorize(['author', 'admin']), deleteStory);
 
-// Public routes
+// Public routes - IMPORTANT: specific routes must come before :id route
 router.get('/published', getPublishedStories);
 router.get('/tags', getTags);
-router.get('/:id', getStory);
+router.get('/:id', getStory); // This MUST be last among GET routes
 
 export default router;

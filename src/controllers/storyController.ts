@@ -114,10 +114,21 @@ export const getPublishedStories = async (req: Request, res: Response) => {
 
 export const getTags = async (req: Request, res: Response) => {
     try {
-        const tags = await Story.distinct('tags', { status: 'published' });
+        // Use aggregation to unwind the tags array and get unique values
+        const result = await Story.aggregate([
+            { $match: { status: 'published' } },
+            { $unwind: '$tags' },
+            { $group: { _id: '$tags' } },
+            { $sort: { _id: 1 } }
+        ]);
+
+        // Extract just the tag values
+        const tags = result.map(item => item._id).filter(tag => tag && tag.trim() !== '');
+
         res.json(tags);
     } catch (err) {
-        console.error(err);
+        console.error('Error fetching tags:', err);
         res.status(500).json({ message: 'Server error' });
     }
 };
+
