@@ -5,8 +5,15 @@ export interface IChoice {
     text: string;
     targetPageId?: string;
     condition?: any; // placeholder for future conditional logic
+    diceRoll?: {
+        enabled: boolean;
+        difficulty: number;
+        type: 'combat' | 'stealth' | 'persuasion' | 'custom';
+        failurePageId?: string;
+    };
 }
 
+// ... (IHotspot remains unchanged)
 export interface IHotspot {
     x: number;
     y: number;
@@ -36,6 +43,12 @@ const ChoiceSchema = new Schema<IChoice>({
     text: { type: String, required: true },
     targetPageId: { type: String, required: false },
     condition: { type: Schema.Types.Mixed },
+    diceRoll: {
+        enabled: { type: Boolean, default: false },
+        difficulty: { type: Number },
+        type: { type: String, enum: ['combat', 'stealth', 'persuasion', 'custom'] },
+        failurePageId: { type: String },
+    },
 });
 
 const HotspotSchema = new Schema<IHotspot>({
