@@ -1,60 +1,60 @@
-import { GameMechanics } from './types';
+import { GameMechanics } from "./types";
 
 /**
  * Knowledge Base for story generation
  * Contains game mechanics, narrative guidelines, and example stories
  */
 export class KnowledgeBase {
-    /**
-     * Get game mechanics definitions
-     */
-    getGameMechanics(): GameMechanics {
-        return {
-            classes: [
-                {
-                    name: 'Guerrier',
-                    weapon: 'Épée rouillée',
-                    combatBonus: 3,
-                    fleeBonus: -2,
-                    specialAbility: 'Rage du Guerrier (réussit automatiquement 1 combat)',
-                },
-                {
-                    name: 'Mage',
-                    weapon: 'Bâton de bois brûlé',
-                    combatBonus: 1,
-                    fleeBonus: 1,
-                    specialAbility: 'Lévitation (évite 1 danger automatiquement)',
-                },
-                {
-                    name: 'Assassin',
-                    weapon: 'Deux dagues ébréchées',
-                    combatBonus: 1,
-                    fleeBonus: 4,
-                    specialAbility: 'Ombre (fuite automatique)',
-                },
-            ],
-            diceSystem: {
-                type: 'd20',
-                difficultyLevels: {
-                    'très facile': 8,
-                    'facile': 10,
-                    'moyen': 12,
-                    'difficile': 15,
-                    'très difficile': 18,
-                },
-            },
-            combatRules: {
-                baseAttackBonus: 0,
-                criticalHitThreshold: 20,
-            },
-        };
-    }
+	/**
+	 * Get game mechanics definitions
+	 */
+	getGameMechanics(): GameMechanics {
+		return {
+			classes: [
+				{
+					name: "Guerrier",
+					weapon: "Épée rouillée",
+					combatBonus: 3,
+					fleeBonus: -2,
+					specialAbility: "Rage du Guerrier (réussit automatiquement 1 combat)",
+				},
+				{
+					name: "Mage",
+					weapon: "Bâton de bois brûlé",
+					combatBonus: 1,
+					fleeBonus: 1,
+					specialAbility: "Lévitation (évite 1 danger automatiquement)",
+				},
+				{
+					name: "Assassin",
+					weapon: "Deux dagues ébréchées",
+					combatBonus: 1,
+					fleeBonus: 4,
+					specialAbility: "Ombre (fuite automatique)",
+				},
+			],
+			diceSystem: {
+				type: "d20",
+				difficultyLevels: {
+					"très facile": 8,
+					facile: 10,
+					moyen: 12,
+					difficile: 15,
+					"très difficile": 18,
+				},
+			},
+			combatRules: {
+				baseAttackBonus: 0,
+				criticalHitThreshold: 20,
+			},
+		};
+	}
 
-    /**
-     * Get narrative style guide
-     */
-    getNarrativeStyle(): string {
-        return `
+	/**
+	 * Get narrative style guide
+	 */
+	getNarrativeStyle(): string {
+		return `
 STYLE NARRATIF:
 - Ton atmosphérique et dramatique
 - Descriptions riches et immersives
@@ -78,13 +78,13 @@ MÉCANIQUES DE JEU:
 - Inclure des fins multiples (victoires ET game overs)
 - Récompenser la créativité et punir l'imprudence
 `;
-    }
+	}
 
-    /**
-     * Get example story page
-     */
-    getExamplePage(): string {
-        return `
+	/**
+	 * Get example story page
+	 */
+	getExamplePage(): string {
+		return `
 EXEMPLE DE PAGE:
 
 ## 🗡️ Page 5 : Le Cri *(Asset: ombre.png)*
@@ -126,13 +126,13 @@ Puis un rugissement bestial te répond. Une **ombre** massive se déplace vers t
 **ASSASSIN :** *[Se fondre dans l'ombre]* (COMPÉTENCE SPÉCIALE)
 - ✅ **Succès automatique** — Tu deviens invisible → Page 2
 `;
-    }
+	}
 
-    /**
-     * Get story structure template
-     */
-    getStoryStructureTemplate(): string {
-        return `
+	/**
+	 * Get story structure template
+	 */
+	getStoryStructureTemplate(): string {
+		return `
 STRUCTURE D'UNE HISTOIRE INTERACTIVE:
 
 1. PAGE D'INTRODUCTION (Page 1)
@@ -165,23 +165,25 @@ RÈGLES IMPORTANTES:
 - Prévoir au moins 3 fins victorieuses différentes
 - Inclure des fins game over humoristiques
 `;
-    }
+	}
 
-    /**
-     * Build context for story generation
-     * Simplified to reduce token usage and avoid timeouts
-     */
-    getGenerationContext(theme?: string): string {
-        const mechanics = this.getGameMechanics();
+	/**
+	 * Build context for story generation
+	 * Simplified to reduce token usage and avoid timeouts
+	 */
+	getGenerationContext(theme?: string): string {
+		const mechanics = this.getGameMechanics();
 
-        // Return minimal context to avoid token overload
-        const minimalContext = `MÉCANIQUES:
-- Classes: ${mechanics.classes.map(c => `${c.name} (${c.weapon}, +${c.combatBonus} combat)`).join(', ')}
+		// Return minimal context to avoid token overload
+		const minimalContext = `MÉCANIQUES:
+- Classes: ${mechanics.classes
+			.map((c) => `${c.name} (${c.weapon}, +${c.combatBonus} combat)`)
+			.join(", ")}
 - Dés: d20, difficulté 10-15
-${theme ? `\nTHÈME: ${theme}` : ''}`;
+${theme ? `\nTHÈME: ${theme}` : ""}`;
 
-        return minimalContext;
-    }
+		return minimalContext;
+	}
 }
 
 export const knowledgeBase = new KnowledgeBase();

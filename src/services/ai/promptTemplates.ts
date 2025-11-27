@@ -3,18 +3,22 @@
  */
 
 export class PromptTemplates {
-  /**
-   * Generate a complete story from a user prompt
-   */
-  static generateStoryPrompt(userPrompt: string, context: string, language: string = 'fr'): string {
-    // Use abbreviated context to avoid token limits
-    const shortContext = `SYSTÈME:
+	/**
+	 * Generate a complete story from a user prompt
+	 */
+	static generateStoryPrompt(
+		userPrompt: string,
+		context: string,
+		language: string = "fr"
+	): string {
+		// Use abbreviated context to avoid token limits
+		const shortContext = `SYSTÈME:
 - 3 classes: Guerrier (+3 combat), Mage (+1 combat, +1 fuite), Assassin (+4 fuite)
 - Système de dés d20 pour actions risquées
 - Difficulté: Facile=10, Moyen=12, Difficile=15
 `;
 
-    return `${shortContext}
+		return `${shortContext}
 
 TÂCHE: Génère une histoire interactive basée sur la demande de l'utilisateur.
 
@@ -37,21 +41,21 @@ FORMAT:
 ### **Choix:**
 - **[Texte]** → Page X
 
-LANGUE: ${language === 'fr' ? 'Français' : 'English'}
+LANGUE: ${language === "fr" ? "Français" : "English"}
 
 Commence maintenant la génération de l'histoire:
 `;
-  }
+	}
 
-  /**
-   * Generate a single page based on story context
-   */
-  static generatePagePrompt(
-    storyContext: string,
-    previousPageContent: string,
-    knowledgeContext: string
-  ): string {
-    return `${knowledgeContext}
+	/**
+	 * Generate a single page based on story context
+	 */
+	static generatePagePrompt(
+		storyContext: string,
+		previousPageContent: string,
+		knowledgeContext: string
+	): string {
+		return `${knowledgeContext}
 
 CONTEXTE DE L'HISTOIRE:
 ${storyContext}
@@ -77,18 +81,18 @@ FORMAT DE SORTIE: Génère uniquement le contenu de la nouvelle page au format:
 
 Génère la page:
 `;
-  }
+	}
 
-  /**
-   * Suggest choices for a given page
-   */
-  static suggestChoicesPrompt(
-    pageContent: string,
-    storyContext: string,
-    knowledgeContext: string,
-    numChoices: number = 3
-  ): string {
-    return `${knowledgeContext}
+	/**
+	 * Suggest choices for a given page
+	 */
+	static suggestChoicesPrompt(
+		pageContent: string,
+		storyContext: string,
+		knowledgeContext: string,
+		numChoices: number = 3
+	): string {
+		return `${knowledgeContext}
 
 CONTEXTE DE L'HISTOIRE:
 ${storyContext}
@@ -117,17 +121,17 @@ OU pour un test:
 
 Génère les choix:
 `;
-  }
+	}
 
-  /**
-   * Refine or improve existing story content
-   */
-  static refineStoryPrompt(
-    originalContent: string,
-    userFeedback: string,
-    knowledgeContext: string
-  ): string {
-    return `${knowledgeContext}
+	/**
+	 * Refine or improve existing story content
+	 */
+	static refineStoryPrompt(
+		originalContent: string,
+		userFeedback: string,
+		knowledgeContext: string
+	): string {
+		return `${knowledgeContext}
 
 CONTENU ORIGINAL:
 ${originalContent}
@@ -147,13 +151,13 @@ FORMAT DE SORTIE: Génère le contenu révisé dans le même format que l'origin
 
 Génère le contenu amélioré:
 `;
-  }
+	}
 
-  /**
-   * Extract structured data from generated markdown
-   */
-  static extractStructurePrompt(markdownContent: string): string {
-    return `Extrait les informations structurées de cette histoire au format JSON.
+	/**
+	 * Extract structured data from generated markdown
+	 */
+	static extractStructurePrompt(markdownContent: string): string {
+		return `Extrait les informations structurées de cette histoire au format JSON.
 
 CONTENU MARKDOWN:
 ${markdownContent}
@@ -191,13 +195,16 @@ IMPORTANT:
 
 Génère le JSON:
 `;
-  }
+	}
 
-  /**
-   * Generate a story title and description from a prompt
-   */
-  static generateMetadataPrompt(userPrompt: string, language: string = 'fr'): string {
-    return `Génère un titre accrocheur et une description courte pour une histoire interactive basée sur cette demande:
+	/**
+	 * Generate a story title and description from a prompt
+	 */
+	static generateMetadataPrompt(
+		userPrompt: string,
+		language: string = "fr"
+	): string {
+		return `Génère un titre accrocheur et une description courte pour une histoire interactive basée sur cette demande:
 
 DEMANDE: ${userPrompt}
 
@@ -209,22 +216,22 @@ FORMAT DE SORTIE: JSON
   "theme": "Thème principal (1-2 mots)"
 }
 
-LANGUE: ${language === 'fr' ? 'Français' : 'English'}
+LANGUE: ${language === "fr" ? "Français" : "English"}
 
 Génère le JSON:
 `;
-  }
+	}
 
-  /**
-   * Generate the first page of a story (with class selection)
-   */
-  static generateFirstPagePrompt(
-    storyTitle: string,
-    storyDescription: string,
-    theme: string,
-    language: string = 'fr'
-  ): string {
-    return `Tu es un créateur d'histoires interactives RPG.
+	/**
+	 * Generate the first page of a story (with class selection)
+	 */
+	static generateFirstPagePrompt(
+		storyTitle: string,
+		storyDescription: string,
+		theme: string,
+		language: string = "fr"
+	): string {
+		return `Tu es un créateur d'histoires interactives RPG.
 
 HISTOIRE: ${storyTitle}
 DESCRIPTION: ${storyDescription}
@@ -249,29 +256,36 @@ FORMAT:
 - **Mage : [Description du choix]** → Page 3
 - **Assassin : [Description du choix]** → Page 4
 
-LANGUE: ${language === 'fr' ? 'Français' : 'English'}
+LANGUE: ${language === "fr" ? "Français" : "English"}
 
 Génère maintenant la première page:
 `;
-  }
+	}
 
-  /**
-   * Generate a continuation page based on a choice
-   */
-  static generateContinuationPagePrompt(
-    storyContext: {
-      title: string;
-      theme: string;
-      previousContent: string;
-      choiceTaken: string;
-      pageNumber: number;
-      shouldBeEnding: boolean;
-    },
-    language: string = 'fr'
-  ): string {
-    const { title, theme, previousContent, choiceTaken, pageNumber, shouldBeEnding } = storyContext;
+	/**
+	 * Generate a continuation page based on a choice
+	 */
+	static generateContinuationPagePrompt(
+		storyContext: {
+			title: string;
+			theme: string;
+			previousContent: string;
+			choiceTaken: string;
+			pageNumber: number;
+			shouldBeEnding: boolean;
+		},
+		language: string = "fr"
+	): string {
+		const {
+			title,
+			theme,
+			previousContent,
+			choiceTaken,
+			pageNumber,
+			shouldBeEnding,
+		} = storyContext;
 
-    return `Tu es un créateur d'histoires interactives RPG.
+		return `Tu es un créateur d'histoires interactives RPG.
 
 HISTOIRE: ${title}
 THÈME: ${theme}
@@ -285,26 +299,34 @@ TÂCHE: Crée la PAGE ${pageNumber} qui suit ce choix.
 EXIGENCES:
 1. Continue naturellement depuis le choix pris
 2. Texte court et immersif (150-200 mots max)
-${shouldBeEnding ?
-        '3. Cette page doit être une FIN (victoire OU game over)\n4. Pas de choix - c\'est la conclusion' :
-        '3. Crée 2-3 nouveaux choix intéressants\n4. Au moins un choix avec un risque (test de dés d20)\n5. Maintiens la cohérence avec l\'histoire'}
+${
+	shouldBeEnding
+		? "3. Cette page doit être une FIN (victoire OU game over)\n4. Pas de choix - c'est la conclusion"
+		: "3. Crée 2-3 nouveaux choix intéressants\n4. Au moins un choix avec un risque (test de dés d20)\n5. Maintiens la cohérence avec l'histoire"
+}
 6. Format markdown
 
 FORMAT:
-## Page ${pageNumber} : [Titre] *(Asset: ${shouldBeEnding ? 'ending' : 'page'}_${pageNumber}.png)*
+## Page ${pageNumber} : [Titre] *(Asset: ${
+			shouldBeEnding ? "ending" : "page"
+		}_${pageNumber}.png)*
 
 [Contenu narratif]
 
-${shouldBeEnding ?
-        '**FIN VICTORIEUSE** ✅ OU **GAME OVER** 💀' :
-        `### **Choix:**
+${
+	shouldBeEnding
+		? "**FIN VICTORIEUSE** ✅ OU **GAME OVER** 💀"
+		: `### **Choix:**
 - **[Texte du choix 1]** → Page ${pageNumber + 1}
 - **[Texte du choix 2]** → Page ${pageNumber + 2}
-${Math.random() > 0.5 ? `- **[Texte du choix 3]** → Page ${pageNumber + 3}` : ''}`}
+${
+	Math.random() > 0.5 ? `- **[Texte du choix 3]** → Page ${pageNumber + 3}` : ""
+}`
+}
 
-LANGUE: ${language === 'fr' ? 'Français' : 'English'}
+LANGUE: ${language === "fr" ? "Français" : "English"}
 
 Génère maintenant la page:
 `;
-  }
+	}
 }
