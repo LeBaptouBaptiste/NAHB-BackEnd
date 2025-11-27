@@ -7,6 +7,7 @@ export interface IGameSession extends Document {
     history: string[]; // array of page IDs visited
     status: 'in_progress' | 'completed' | 'abandoned';
     diceRolls?: number[]; // optional dice roll history for future features
+    inventory: string[]; // collected items
     isPreview?: boolean; // true if this is an author preview session (doesn't affect stats)
     endingPageId?: string; // the ending page reached (if completed)
     createdAt?: Date;
@@ -21,6 +22,7 @@ const GameSessionSchema = new Schema<IGameSession>(
         history: [{ type: String }],
         status: { type: String, enum: ['in_progress', 'completed', 'abandoned'], default: 'in_progress' },
         diceRolls: [{ type: Number }],
+        inventory: [{ type: String }],
         isPreview: { type: Boolean, default: false },
         endingPageId: { type: String },
     },
