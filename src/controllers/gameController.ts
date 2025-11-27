@@ -2,8 +2,6 @@ import { Request, Response } from 'express';
 import { GameSession } from '../models/mongoose/GameSession';
 import { Story } from '../models/mongoose/Story';
 import { Page } from '../models/mongoose/Page';
-import User from '../models/sequelize/User';
-import { authenticate } from '../middleware/auth';
 
 // Start a new game session
 export const startGame = async (req: Request, res: Response) => {
@@ -323,5 +321,34 @@ export const getStoryStats = async (req: Request, res: Response) => {
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Get the current in-progress session for a story
+export const getSessionByStory = async (req: Request, res: Response) => {
+    // @ts-ignore
+    const userId = (req as any).userId;
+    const { storyId } = req.params;
+
+    try {
+        if (!storyId) {
+            return res.status(400).json({ message: 'Missing storyId' });
+        }
+
+        const session = await GameSession.findOne({
+            userId: userId.toString(),
+            storyId,
+            status: 'in_progress',
+            isPreview: { $ne: true }
+        })
+        .sort({ updatedAt: -1 }) // take the most recent if ever multiple
+        .lean();
+
+        // If no session found, return null instead of 404 (important for UX)
+        return res.json(session || null);
+
+    } catch (err) {
+        console.error('Error fetching session by story:', err);
+        return res.status(500).json({ message: 'Server error' });
     }
 };
