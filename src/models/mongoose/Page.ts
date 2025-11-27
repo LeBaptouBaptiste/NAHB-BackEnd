@@ -4,7 +4,14 @@ import { IStory } from './Story';
 export interface IChoice {
     text: string;
     targetPageId?: string;
-    condition?: any; // placeholder for future conditional logic
+    condition?: {
+        type: 'has_item';
+        value: string;
+    };
+    rewards?: {
+        type: 'add_item';
+        value: string;
+    }[];
     diceRoll?: {
         enabled: boolean;
         difficulty: number;
@@ -42,7 +49,14 @@ export interface IPage extends Document {
 const ChoiceSchema = new Schema<IChoice>({
     text: { type: String, required: true },
     targetPageId: { type: String, required: false },
-    condition: { type: Schema.Types.Mixed },
+    condition: {
+        type: { type: String, enum: ['has_item'], required: false },
+        value: { type: String, required: false }
+    },
+    rewards: [{
+        type: { type: String, enum: ['add_item'], required: true },
+        value: { type: String, required: true }
+    }],
     diceRoll: {
         enabled: { type: Boolean, default: false },
         difficulty: { type: Number },
