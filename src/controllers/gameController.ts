@@ -33,6 +33,7 @@ export const startGame = async (req: Request, res: Response) => {
             storyId,
             currentPageId: story.startPageId,
             history: [],
+            inventory: [],
             status: 'in_progress',
             isPreview: isPreview, // Mark as preview session
         });
@@ -98,7 +99,23 @@ export const makeChoice = async (req: Request, res: Response) => {
             if (choiceIndex < 0 || choiceIndex >= page.choices.length) {
                 return res.status(400).json({ message: 'Invalid choice index' });
             }
-            nextPageId = page.choices[choiceIndex].targetPageId;
+            const choice = page.choices[choiceIndex];
+            nextPageId = choice.targetPageId;
+
+            // Handle Rewards
+            if (choice.rewards && choice.rewards.length > 0) {
+                if (!session.inventory) session.inventory = [];
+
+                choice.rewards.forEach(reward => {
+                    if (reward.type === 'add_item' && reward.value) {
+                        // Add item if not already present (or allow duplicates? let's allow for now but typically unique)
+                        // Let's just push it.
+                        session.inventory.push(reward.value);
+                    }
+                });
+                // Mark modified because we are pushing to an array
+                session.markModified('inventory');
+            }
         }
 
         if (!nextPageId) {
