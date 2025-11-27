@@ -10,9 +10,13 @@ export const register = async (req: Request, res: Response) => {
         return res.status(400).json({ message: 'All fields required' });
     }
     try {
-        const existing = await User.findOne({ where: { email } });
-        if (existing) {
+        const existingMail = await User.findOne({ where: { email } });
+        if (existingMail) {
             return res.status(409).json({ message: 'Email already in use' });
+        }
+        const existingUser = await User.findOne({ where: { username } });
+        if (existingUser) {
+            return res.status(409).json({ message: 'Username already in use' });
         }
         const hash = await bcrypt.hash(password, 10);
         const user = await User.create({ username, email, password_hash: hash, role: 'author' });
