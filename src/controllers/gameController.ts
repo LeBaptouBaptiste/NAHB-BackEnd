@@ -100,7 +100,29 @@ export const makeChoice = async (req: Request, res: Response) => {
                 return res.status(400).json({ message: 'Invalid choice index' });
             }
             const choice = page.choices[choiceIndex];
-            nextPageId = choice.targetPageId;
+
+            // Handle Dice Roll Outcome
+            // @ts-ignore
+            const { diceRollSuccess } = req.body;
+            console.log('makeChoice debug:', {
+                choiceIndex,
+                diceRollSuccess,
+                hasDiceRoll: !!choice.diceRoll,
+                failurePageId: choice.diceRoll?.failurePageId,
+                successPageId: choice.diceRoll?.successPageId,
+                targetPageId: choice.targetPageId
+            });
+
+            if (diceRollSuccess === false && choice.diceRoll && choice.diceRoll.failurePageId) {
+                // Explicit failure: redirect to failure page
+                nextPageId = choice.diceRoll.failurePageId;
+            } else if (diceRollSuccess === true && choice.diceRoll && choice.diceRoll.successPageId) {
+                // Explicit success with specific success page: redirect to success page
+                nextPageId = choice.diceRoll.successPageId;
+            } else {
+                // Success (default) or no dice roll: proceed to target page
+                nextPageId = choice.targetPageId;
+            }
 
             // Handle Rewards
             if (choice.rewards && choice.rewards.length > 0) {
