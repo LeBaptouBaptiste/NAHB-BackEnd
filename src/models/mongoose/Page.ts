@@ -18,6 +18,12 @@ export interface IChoice {
         type: 'combat' | 'stealth' | 'persuasion' | 'custom';
         failurePageId?: string;
     };
+    audio?: {
+        src: string;
+        type: 'music' | 'sfx';
+        duration?: number; // in seconds
+        loop?: boolean;
+    }[];
 }
 
 // ... (IHotspot remains unchanged)
@@ -63,6 +69,12 @@ const ChoiceSchema = new Schema<IChoice>({
         type: { type: String, enum: ['combat', 'stealth', 'persuasion', 'custom'] },
         failurePageId: { type: String },
     },
+    audio: [{
+        src: { type: String, required: true },
+        type: { type: String, enum: ['music', 'sfx'], required: true },
+        duration: { type: Number },
+        loop: { type: Boolean, default: false }
+    }],
 });
 
 const HotspotSchema = new Schema<IHotspot>({
