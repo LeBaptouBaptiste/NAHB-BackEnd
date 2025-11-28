@@ -70,18 +70,17 @@ export class StoryGenerator {
 			story.startPageId = firstPage._id.toString();
 			await story.save();
 
-			// Step 4: Iterative page generation
-			console.log(
-				`🔄 Step 4: Generating remaining pages (target: ${numPages})...`
-			);
-			await this.generateRemainingPages(
-				story._id.toString(),
-				metadata.title,
-				metadata.theme || "adventure",
-				firstPage,
-				numPages,
-				language
-			);
+            // Step 4: Iterative page generation
+            console.log(`🔄 Step 4: Generating remaining pages (target: ${numPages})...`);
+            // Do not await this, let it run in background
+            this.generateRemainingPages(
+                story._id.toString(),
+                metadata.title,
+                metadata.theme || 'adventure',
+                firstPage,
+                numPages,
+                language
+            ).catch(err => console.error('Background generation error:', err));
 
 			console.log(`🎉 Story generation complete! ID: ${story._id}`);
 			return story;
