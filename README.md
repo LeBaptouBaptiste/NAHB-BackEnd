@@ -57,6 +57,7 @@ The application is designed "Mobile First" but adapts perfectly to large screens
 ![Responsive Design](./responsive_screenshot.png)
 
 ## 🎮 Features Evaluation
+For a detailed breakdown of all implemented features and their evaluation criteria, please see [README_EVALUATION.md](./README_EVALUATION.md).
 
 ### 1. Base Features (10/20) - ✅ Validated
 - **Authentication**: Register, Login/Logout, Session management (JWT).
