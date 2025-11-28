@@ -12,11 +12,13 @@ NAHB is an interactive storytelling platform where:
 ## 🏗️ Architecture
 
 ### Tech Stack
-- **Frontend**: React + TypeScript, Vite, TailwindCSS, React Router, React Flow
+- **Frontend**: React 19 + TypeScript, Vite, TailwindCSS, React Router, React Flow
 - **Backend**: Node.js, Express + TypeScript
 - **Databases**: 
-  - MySQL (Users, Authentication)
-  - MongoDB (Stories, Pages, Game Sessions, Ratings, Reports)
+  - **MongoDB** (via Mongoose): For flexible schemas (Stories, Pages, Game Sessions)
+  - **MySQL** (via Sequelize): For structured relational data (Users, Authentication)
+  - **Hybrid Architecture**: Uses the **Repository Pattern** to abstract data sources.
+- **Architecture Pattern**: **Service Layer Pattern** (Controllers -> Services -> Repositories)
 - **Testing**: Jest, Supertest, MongoDB Memory Server
 - **DevOps**: Docker, Docker Compose
 
@@ -31,6 +33,60 @@ NAHB is an interactive storytelling platform where:
 - **GameSessions**: Player progress, history, save states, preview mode
 - **Ratings**: User ratings and comments for stories
 - **Reports**: User reports for inappropriate content
+
+## 🌟 Killer Features
+
+This project distinguishes itself with three major technical and UX features:
+
+### 1. Visual Node Editor (React Flow)
+Authors have a **"God Mode" view** of their story as a node graph. They can visualize all pages and links, making it easy to detect dead ends or infinite loops. This transforms story creation into a professional game design experience.
+
+### 2. Visual & Audio Immersion (Hotspots & Audio)
+- **Hotspots**: Images are playable. Users can explore scenes by clicking on interactive zones.
+- **Audio**: Ambient music and sound effects change with scenes, creating a unique atmosphere.
+
+### 3. RPG Mechanics (Dice & Inventory)
+Integrated 3D dice engine and inventory system add true RPG elements. Success is not guaranteed, adding suspense and replayability.
+
+## 📱 Responsive Design
+
+The application is designed "Mobile First" but adapts perfectly to large screens.
+- **Mobile**: Clean interface, thumb-friendly menus.
+- **Desktop**: Utilizes space for story trees, detailed stats, and immersive views.
+
+![Responsive Design](./responsive_screenshot.png)
+
+## 🎮 Features Evaluation
+
+### 1. Base Features (10/20) - ✅ Validated
+- **Authentication**: Register, Login/Logout, Session management (JWT).
+- **Story Management**: Create, Edit, Delete, Draft/Publish status.
+- **Pages & Choices**: Create scenes with text/media, multiple choices, ending indicators.
+- **Reading**: Browse stories, fluid navigation, clear endings.
+- **Save System**: Automatic progress saving.
+- **Admin**: Dashboard, User banning, Story suspension, Global stats.
+
+### 2. Advanced Features (13/20) - ✅ Validated
+- **Reader Experience**: 
+  - Story filtering (themes, search).
+  - Advanced stats (endings reached, path comparison).
+  - Badges collection for unlocked endings.
+  - Ratings (1-5 stars) & Comments.
+  - Resume reading from dashboard.
+  - Report system.
+- **Author Experience**:
+  - Author profile & story list.
+  - Advanced stats (views, avg rating).
+  - Preview mode (test without affecting stats).
+  - **Image Support**: For stories and pages.
+- **UX/UI**: Premium Glassmorphism design, Toasts, Confirmation dialogs.
+
+### 3. High-Level Quality (16-18/20) - ✅ Validated
+- **Story Trees**: React Flow integration for authors and readers.
+- **Interactive Illustrations**: Hotspot system for clickable image zones.
+- **RNG System**: 3D Dice rolling for conditional choices.
+- **Audio**: Music & SFX support.
+- **Quality**: Modular architecture (Service Layer, Atomic Design), Strong TypeScript typing.
 
 ## 🚀 Installation & Setup
 
@@ -105,62 +161,22 @@ npm run dev
 - `DELETE /api/pages/:id` - Delete page
 
 ### Game (Reader)
-- `POST /api/game/start` - Start new game session (supports `preview: true` for authors)
+- `POST /api/game/start` - Start new game session
 - `POST /api/game/choice` - Make a choice
 - `GET /api/game/sessions` - Get my sessions
 - `GET /api/game/session/:id` - Get specific session
-- `GET /api/game/session/:sessionId/path-stats` - Get path statistics ("X% took same path")
-- `GET /api/game/story/:storyId/stats` - Get story statistics (author only)
+- `GET /api/game/story/:storyId/stats` - Get story statistics
 
 ### Ratings
-- `GET /api/ratings/story/:storyId` - Get ratings for a story
-- `POST /api/ratings/story/:storyId` - Rate a story (1-5 stars + optional comment)
-- `GET /api/ratings/story/:storyId/me` - Get user's rating for a story
-- `DELETE /api/ratings/story/:storyId` - Delete user's rating
+- `GET /api/ratings/story/:storyId` - Get ratings
+- `POST /api/ratings/story/:storyId` - Rate a story
 
-### Reports
-- `POST /api/reports/story/:storyId` - Report a story
-- `GET /api/reports/my-reports` - Get user's reports
-
-### Admin (Admin only)
-- `GET /api/admin/users` - List all users
-- `PATCH /api/admin/users/:userId/ban` - Ban/unban a user
-- `GET /api/admin/stories` - List all stories (including suspended)
-- `PATCH /api/admin/stories/:storyId/suspend` - Suspend/unsuspend a story
-- `GET /api/admin/reports` - List all reports
-- `PATCH /api/admin/reports/:reportId` - Update report status
-- `GET /api/admin/stats` - Get platform statistics
-
-### Public
-- `GET /api/stories/published` - List published stories (with search/filter)
-
-## 🎮 Features
-
-### Phase 1 (10/20) - ✅ Complete
-- ✅ User authentication (register, login, sessions)
-- ✅ Story CRUD operations
-- ✅ Page/Scene management with choices
-- ✅ Game play functionality
-- ✅ Session recording (save progress)
-- ✅ Admin role management
-
-### Phase 2 (13-16/20) - ✅ Complete
-- ✅ Story filtering by themes
-- ✅ Advanced statistics (path %, endings distribution)
-- ✅ Ratings & comments system
-- ✅ Story reporting system
-- ✅ Image support for pages
-- ✅ Author preview mode (test without affecting stats)
-- ✅ Admin dashboard with user/story management
-
-### Phase 3 (18/20+) - ✅ Complete
-- ✅ Visual story tree editor (React Flow)
-- ✅ Dice system for RNG-based choices
-- ✅ Unit tests with Jest
-- ✅ Docker Compose setup
-- ⬜ Interactive illustrations with clickable zones
-- ⬜ CI/CD pipeline
-- ⬜ Production deployment
+### Admin
+- `GET /api/admin/users` - List users
+- `PATCH /api/admin/users/:userId/ban` - Ban user
+- `GET /api/admin/stories` - List all stories
+- `PATCH /api/admin/stories/:storyId/suspend` - Suspend story
+- `GET /api/admin/stats` - Platform stats
 
 ## 🧪 Testing
 
@@ -169,38 +185,8 @@ npm run dev
 cd NAHB-BackEnd
 npm test
 
-# Run tests in watch mode
-npm run test:watch
-
 # Run tests with coverage
 npm test -- --coverage
-```
-
-### Test Coverage
-- Model tests (Story, Page, GameSession, Rating, Report)
-- Controller logic validation
-- API endpoint integration tests
-
-## 📦 Deployment
-
-### Production Build
-
-**Backend:**
-```bash
-cd NAHB-BackEnd
-npm run build
-npm start
-```
-
-**Frontend:**
-```bash
-cd NAHB-FrontEnd
-npm run build
-```
-
-### Docker Production
-```bash
-docker-compose up -d
 ```
 
 ## 📊 Database Diagram
@@ -227,45 +213,20 @@ docker-compose up -d
 │  ├── authorId (FK)          │  ├── image                        │
 │  ├── status                 │  ├── isEnding                     │
 │  ├── tags[]                 │  ├── endingType                   │
-│  ├── theme                  │  └── choices[]                    │
-│  ├── startPageId            │      ├── text                     │
-│  └── stats                  │      └── targetPageId             │
-│      ├── views              │                                   │
-│      ├── completions        ├──────────────────────────────────┤
-│      └── endings{}          │  GameSessions                     │
-│                             │  ├── _id                          │
-├─────────────────────────────│  ├── userId (FK)                  │
-│  Ratings                    │  ├── storyId (FK)                 │
-│  ├── _id                    │  ├── currentPageId                │
-│  ├── storyId (FK)           │  ├── history[]                    │
-│  ├── userId (FK)            │  ├── status                       │
-│  ├── score (1-5)            │  ├── isPreview                    │
-│  └── comment                │  └── diceRolls[]                  │
-│                             │                                   │
+│  ├── theme                  │  ├── startPageId                  │
+│  └── stats                  │  └── choices[]                    │
+│                             │      ├── text                     │
+│                             │      └── targetPageId             │
 ├─────────────────────────────┼──────────────────────────────────┤
-│  Reports                    │                                   │
-│  ├── _id                    │                                   │
-│  ├── storyId (FK)           │                                   │
-│  ├── reporterId (FK)        │                                   │
-│  ├── type                   │                                   │
-│  ├── description            │                                   │
-│  ├── status                 │                                   │
-│  └── resolvedBy             │                                   │
+│  GameSessions               │  Ratings / Reports               │
+│  ├── _id                    │  ├── _id                         │
+│  ├── userId (FK)            │  ├── storyId (FK)                │
+│  ├── storyId (FK)           │  ├── userId (FK)                 │
+│  ├── currentPageId          │  ├── score / type                │
+│  ├── history[]              │  └── comment / description       │
+│  └── status                 │                                  │
 └─────────────────────────────┴──────────────────────────────────┘
 ```
-
-## 🔐 Authentication & Authorization
-
-- JWT-based authentication
-- Role-based access control:
-  - **Admin**: Full access to all features + admin panel
-  - **Author**: Can create/edit own stories, preview mode
-  - **Reader**: Can play published stories, rate, report
-  - **Banned**: No access to platform features
-
-## 📸 Screenshots
-
-_(Add screenshots of your application here)_
 
 ## 👥 Team
 
@@ -274,4 +235,3 @@ Group project by Stephane DEDU and VIDAL Baptiste
 ## 📄 License
 
 ISC
-
