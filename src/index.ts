@@ -16,7 +16,7 @@ import aiStoryRoutes from "./routes/aiStoryRoutes";
 import uploadRoutes from "./routes/uploadRoutes";
 import favoriteRoutes from "./routes/favoriteRoutes";
 import userRoutes from "./routes/userRoutes";
-import migrationRoutes from './routes/migrationRoutes';
+import migrationRoutes from "./routes/migrationRoutes";
 
 dotenv.config();
 
@@ -45,7 +45,7 @@ app.use("/api/ai", aiStoryRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/favorites", favoriteRoutes);
 app.use("/api/user", userRoutes);
-app.use('/api/migration', migrationRoutes);
+app.use("/api/migration", migrationRoutes);
 
 // Root endpoint
 app.get("/", (req, res) => {

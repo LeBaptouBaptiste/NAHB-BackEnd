@@ -1,5 +1,5 @@
-import { Request, Response } from 'express';
-import { aiService } from '../services/aiService';
+import { Request, Response } from "express";
+import { aiService } from "../services/aiService";
 import {
 	StoryGenerationRequest,
 	PageGenerationRequest,
@@ -28,12 +28,15 @@ export class AIStoryController {
 
 			console.log(`Received story generation request: "${userPrompt}"`);
 
-            const story = await aiService.generateFullStory({
-                userPrompt,
-                theme,
-                numPages,
-                language: language || 'fr',
-            }, userId ? userId.toString() : 'ai-system');
+			const story = await aiService.generateFullStory(
+				{
+					userPrompt,
+					theme,
+					numPages,
+					language: language || "fr",
+				},
+				userId ? userId.toString() : "ai-system"
+			);
 
 			res.status(201).json({
 				success: true,
@@ -69,11 +72,11 @@ export class AIStoryController {
 				return;
 			}
 
-            const page = await aiService.generatePage({
-                storyContext,
-                previousPageId,
-                theme,
-            });
+			const page = await aiService.generatePage({
+				storyContext,
+				previousPageId,
+				theme,
+			});
 
 			res.status(201).json({
 				success: true,
@@ -106,11 +109,11 @@ export class AIStoryController {
 				return;
 			}
 
-            const choices = await aiService.suggestChoices({
-                pageContent,
-                storyContext,
-                numChoices: numChoices || 3,
-            });
+			const choices = await aiService.suggestChoices({
+				pageContent,
+				storyContext,
+				numChoices: numChoices || 3,
+			});
 
 			res.status(200).json({
 				success: true,
@@ -127,13 +130,13 @@ export class AIStoryController {
 		}
 	}
 
-    /**
-     * GET /api/ai/health
-     * Check AI service health
-     */
-    async healthCheck(req: Request, res: Response): Promise<void> {
-        try {
-            const health = await aiService.healthCheck();
+	/**
+	 * GET /api/ai/health
+	 * Check AI service health
+	 */
+	async healthCheck(req: Request, res: Response): Promise<void> {
+		try {
+			const health = await aiService.healthCheck();
 
 			res.status(200).json({
 				success: true,
