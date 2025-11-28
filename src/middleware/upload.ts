@@ -25,11 +25,18 @@ export const upload = multer({
 	fileFilter: (req, file, cb) => {
 		if (
 			file.mimetype.startsWith("image/") ||
-			file.mimetype.startsWith("audio/")
+			file.mimetype.startsWith("audio/") ||
+			file.mimetype === "application/zip" ||
+			file.mimetype === "application/x-zip-compressed" ||
+			file.mimetype === "application/octet-stream" // Sometimes ZIPs are octet-stream
 		) {
 			cb(null, true);
 		} else {
-			cb(new Error("Only images and audio files are allowed"));
+			cb(
+				new Error(
+					"Invalid file type. Only images, audio, and ZIP files are allowed."
+				)
+			);
 		}
 	},
 });

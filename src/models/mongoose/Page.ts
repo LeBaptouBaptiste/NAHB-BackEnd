@@ -17,6 +17,7 @@ export interface IChoice {
 		difficulty: number;
 		type: "combat" | "stealth" | "persuasion" | "custom";
 		failurePageId?: string;
+		successPageId?: string;
 	};
 	audio?: {
 		src: string;
@@ -39,6 +40,7 @@ export interface IHotspot {
 		difficulty: number;
 		type: "combat" | "stealth" | "persuasion" | "custom";
 		failurePageId?: string;
+		successPageId?: string;
 	};
 }
 
@@ -70,6 +72,7 @@ const ChoiceSchema = new Schema<IChoice>({
 		difficulty: { type: Number },
 		type: { type: String, enum: ["combat", "stealth", "persuasion", "custom"] },
 		failurePageId: { type: String },
+		successPageId: { type: String },
 	},
 	audio: [
 		{
@@ -93,6 +96,7 @@ const HotspotSchema = new Schema<IHotspot>({
 		difficulty: { type: Number },
 		type: { type: String, enum: ["combat", "stealth", "persuasion", "custom"] },
 		failurePageId: { type: String },
+		successPageId: { type: String },
 	},
 });
 

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { storyGenerator } from "../services/ai/storyGenerator";
+import { aiService } from "../services/aiService";
 import {
 	StoryGenerationRequest,
 	PageGenerationRequest,
@@ -28,7 +28,7 @@ export class AIStoryController {
 
 			console.log(`Received story generation request: "${userPrompt}"`);
 
-			const story = await storyGenerator.generateFullStory(
+			const story = await aiService.generateFullStory(
 				{
 					userPrompt,
 					theme,
@@ -72,7 +72,7 @@ export class AIStoryController {
 				return;
 			}
 
-			const page = await storyGenerator.generatePage({
+			const page = await aiService.generatePage({
 				storyContext,
 				previousPageId,
 				theme,
@@ -109,7 +109,7 @@ export class AIStoryController {
 				return;
 			}
 
-			const choices = await storyGenerator.suggestChoices({
+			const choices = await aiService.suggestChoices({
 				pageContent,
 				storyContext,
 				numChoices: numChoices || 3,
@@ -136,7 +136,7 @@ export class AIStoryController {
 	 */
 	async healthCheck(req: Request, res: Response): Promise<void> {
 		try {
-			const health = await storyGenerator.healthCheck();
+			const health = await aiService.healthCheck();
 
 			res.status(200).json({
 				success: true,
