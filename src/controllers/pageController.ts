@@ -1,45 +1,16 @@
 import { Request, Response } from 'express';
-import { Page, IPage } from '../models/mongoose/Page';
-import { Story } from '../models/mongoose/Story';
-import User from '../models/sequelize/User';
-
-// Helper to verify author ownership
-const isAuthor = async (userId: number, authorId: string) => {
-    const user = await User.findByPk(userId);
-    return user && user.id.toString() === authorId;
-};
+import * as pageService from '../services/pageService';
 
 export const createPage = async (req: Request, res: Response) => {
     // @ts-ignore
     const userId = (req as any).userId;
-    const { storyId, content, image, isEnding, endingType, choices, hotspots } = req.body;
     try {
-        const story = await Story.findById(storyId);
-        if (!story) return res.status(404).json({ message: 'Story not found' });
-        if (!(await isAuthor(userId, story.authorId))) {
-            return res.status(403).json({ message: 'Not authorized' });
-        }
-        const page = await Page.create({
-            storyId,
-            content,
-            image,
-            isEnding: !!isEnding,
-            endingType,
-            choices,
-            hotspots,
-        } as IPage);
-
-        // If this is the first page and story doesn't have a startPageId, set it automatically
-        if (!story.startPageId) {
-            const pageCount = await Page.countDocuments({ storyId });
-            if (pageCount === 1) {
-                story.startPageId = page._id.toString();
-                await story.save();
-            }
-        }
-
+        const page = await pageService.createPage(userId, req.body);
         res.status(201).json(page);
-    } catch (err) {
+    } catch (err: any) {
+        if (err.message === 'Story not found') return res.status(404).json({ message: err.message });
+        if (err.message === 'Not authorized') return res.status(403).json({ message: err.message });
+
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
@@ -48,7 +19,7 @@ export const createPage = async (req: Request, res: Response) => {
 export const getPagesByStory = async (req: Request, res: Response) => {
     const { storyId } = req.params;
     try {
-        const pages = await Page.find({ storyId });
+        const pages = await pageService.getPagesByStory(storyId);
         res.json(pages);
     } catch (err) {
         console.error(err);
@@ -59,10 +30,11 @@ export const getPagesByStory = async (req: Request, res: Response) => {
 export const getPage = async (req: Request, res: Response) => {
     const { id } = req.params;
     try {
-        const page = await Page.findById(id);
-        if (!page) return res.status(404).json({ message: 'Page not found' });
+        const page = await pageService.getPage(id);
         res.json(page);
-    } catch (err) {
+    } catch (err: any) {
+        if (err.message === 'Page not found') return res.status(404).json({ message: err.message });
+
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
@@ -72,28 +44,14 @@ export const updatePage = async (req: Request, res: Response) => {
     // @ts-ignore
     const userId = (req as any).userId;
     const { id } = req.params;
-    const { content, image, isEnding, endingType, choices, hotspots } = req.body;
     try {
-        const page = await Page.findById(id);
-        if (!page) return res.status(404).json({ message: 'Page not found' });
-        const story = await Story.findById(page.storyId);
-        if (!story) return res.status(404).json({ message: 'Parent story not found' });
-        if (!(await isAuthor(userId, story.authorId))) {
-            return res.status(403).json({ message: 'Not authorized' });
-        }
-        if (content !== undefined) page.content = content;
-        if (image !== undefined) page.image = image;
-        if (isEnding !== undefined) page.isEnding = !!isEnding;
-        if (endingType !== undefined) page.endingType = endingType;
-        if (choices !== undefined) page.choices = choices;
-        if (hotspots !== undefined) {
-            console.log('Updating hotspots for page', id, hotspots);
-            page.hotspots = hotspots;
-        }
-        await page.save();
-        console.log('Page saved:', page);
+        const page = await pageService.updatePage(userId, id, req.body);
         res.json(page);
-    } catch (err) {
+    } catch (err: any) {
+        if (err.message === 'Page not found') return res.status(404).json({ message: err.message });
+        if (err.message === 'Parent story not found') return res.status(404).json({ message: err.message });
+        if (err.message === 'Not authorized') return res.status(403).json({ message: err.message });
+
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
@@ -104,16 +62,13 @@ export const deletePage = async (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const { id } = req.params;
     try {
-        const page = await Page.findById(id);
-        if (!page) return res.status(404).json({ message: 'Page not found' });
-        const story = await Story.findById(page.storyId);
-        if (!story) return res.status(404).json({ message: 'Parent story not found' });
-        if (!(await isAuthor(userId, story.authorId))) {
-            return res.status(403).json({ message: 'Not authorized' });
-        }
-        await page.deleteOne();
-        res.json({ message: 'Page deleted' });
-    } catch (err) {
+        const result = await pageService.deletePage(userId, id);
+        res.json(result);
+    } catch (err: any) {
+        if (err.message === 'Page not found') return res.status(404).json({ message: err.message });
+        if (err.message === 'Parent story not found') return res.status(404).json({ message: err.message });
+        if (err.message === 'Not authorized') return res.status(403).json({ message: err.message });
+
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
@@ -124,15 +79,12 @@ export const setStartPage = async (req: Request, res: Response) => {
     const userId = (req as any).userId;
     const { storyId, startPageId } = req.body;
     try {
-        const story = await Story.findById(storyId);
-        if (!story) return res.status(404).json({ message: 'Story not found' });
-        if (!(await isAuthor(userId, story.authorId))) {
-            return res.status(403).json({ message: 'Not authorized' });
-        }
-        story.startPageId = startPageId;
-        await story.save();
+        const story = await pageService.setStartPage(userId, storyId, startPageId);
         res.json(story);
-    } catch (err) {
+    } catch (err: any) {
+        if (err.message === 'Story not found') return res.status(404).json({ message: err.message });
+        if (err.message === 'Not authorized') return res.status(403).json({ message: err.message });
+
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }

@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import { Favorite } from '../models/mongoose/Favorite';
-import { Story } from '../models/mongoose/Story';
+import * as favoriteService from '../services/favoriteService';
 
 // Toggle favorite status
 export const toggleFavorite = async (req: Request, res: Response) => {
@@ -9,24 +8,12 @@ export const toggleFavorite = async (req: Request, res: Response) => {
     const { storyId } = req.params;
 
     try {
-        const story = await Story.findById(storyId);
-        if (!story) {
-            return res.status(404).json({ message: 'Story not found' });
+        const result = await favoriteService.toggleFavorite(userId, storyId);
+        res.json(result);
+    } catch (err: any) {
+        if (err.message === 'Story not found') {
+            return res.status(404).json({ message: err.message });
         }
-
-        const existing = await Favorite.findOne({ userId: userId.toString(), storyId });
-
-        if (existing) {
-            await Favorite.deleteOne({ _id: existing._id });
-            res.json({ favorited: false });
-        } else {
-            await Favorite.create({
-                userId: userId.toString(),
-                storyId,
-            });
-            res.json({ favorited: true });
-        }
-    } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
     }
@@ -39,8 +26,8 @@ export const checkFavorite = async (req: Request, res: Response) => {
     const { storyId } = req.params;
 
     try {
-        const favorite = await Favorite.findOne({ userId: userId.toString(), storyId });
-        res.json({ favorited: !!favorite });
+        const result = await favoriteService.checkFavorite(userId, storyId);
+        res.json(result);
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: 'Server error' });
@@ -53,9 +40,7 @@ export const getFavorites = async (req: Request, res: Response) => {
     const userId = (req as any).userId;
 
     try {
-        const favorites = await Favorite.find({ userId: userId.toString() });
-        const storyIds = favorites.map(f => f.storyId);
-        const stories = await Story.find({ _id: { $in: storyIds } });
+        const stories = await favoriteService.getFavorites(userId);
         res.json(stories);
     } catch (err) {
         console.error(err);
